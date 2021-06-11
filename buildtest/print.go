@@ -25,8 +25,7 @@ import (
 const textWidth = 25
 
 func Printlnf(format string, a ...interface{}) {
-	fmt.Printf(format, a...)
-	fmt.Println()
+	fmt.Printf(format+"\n", a...)
 }
 
 func PrintProps(name string, value string) {
