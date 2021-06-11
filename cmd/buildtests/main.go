@@ -1,3 +1,19 @@
+/*
+ *  Copyright (C) 2011-2021 Red Hat, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *          http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package main
 
 import (
@@ -27,7 +43,7 @@ func main() {
 		},
 	}
 
-	exec.Flags().StringVarP(&targetIndy, "targetIndy", "t", "", "The target indy server to do the testing. If not specified, will get from env variables 'INDY_TARGET'")
+	exec.Flags().StringVarP(&targetIndy, "targetIndy", "t", "", "The target indy server to do the testing. If not specified, will get from env variables 'INDY_TARGET'.")
 
 	if err := exec.Execute(); err != nil {
 		fmt.Println(err)
@@ -69,19 +85,19 @@ func run(logUrl string) {
 	if err == nil {
 		downloads := result["downloads"]
 		if downloads != nil {
-			fmt.Println("Start showing downloads: ==================\n")
+			fmt.Print("Start showing downloads: ==================\n\n")
 			for _, d := range downloads {
 				fmt.Println(d)
 			}
-			fmt.Println("\nFinish showing downloads: ==================\n")
+			fmt.Print("\nFinish showing downloads: ==================\n\n")
 		}
 		uploads := result["uploads"]
 		if uploads != nil {
-			fmt.Println("Start showing uploads: ==================\n")
+			fmt.Print("Start showing uploads: ==================\n\n")
 			for _, u := range uploads {
 				fmt.Println(u)
 			}
-			fmt.Println("\nFinish showing uploads: ==================\n")
+			fmt.Print("\nFinish showing uploads: ==================\n\n")
 		}
 	}
 }
