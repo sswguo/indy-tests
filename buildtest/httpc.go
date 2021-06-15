@@ -22,6 +22,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
+	"path"
 	"strings"
 )
 
@@ -212,4 +214,58 @@ func isBinContent(headers http.Header) bool {
 	}
 
 	return true
+}
+
+func downloadFile(url, storeFileName string, verbose bool) {
+	fmt.Printf("Downloading %s\n", url)
+	client := &http.Client{}
+	req, err := http.NewRequest(MethodGet, url, nil)
+	if err != nil {
+		fmt.Printf("Can not download file %s, err: %s", url, err)
+		return
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("Can not download file %s, err: %s", url, err)
+		return
+	}
+
+	PrintVerbose("The api is trying to download a file\n", verbose)
+	conDispo := resp.Header.Get("Content-Disposition")
+	filePath := ""
+	if !IsEmptyString(storeFileName) {
+		filePath = strings.TrimSpace(storeFileName)
+	} else {
+		if !IsEmptyString(conDispo) {
+			start := strings.Index(conDispo, "filename")
+			filePath = conDispo[start:]
+			splitted := strings.Split(filePath, "=")
+			filePath = splitted[1]
+		} else {
+			filePath = path.Base(url)
+		}
+		filePath = "./" + filePath
+	}
+
+	// Check and create the file
+	for FileOrDirExists(filePath) {
+		filePath = filePath + ".1"
+	}
+	out, err := os.Create(filePath)
+	defer out.Close()
+	if err != nil {
+		fmt.Println("Warning: cannot download file due to io error!")
+	} else {
+		PrintVerbose("Download started.\n", verbose)
+
+		_, err = io.Copy(out, resp.Body)
+		if err != nil {
+			fmt.Println("Warning: cannot download file due to io error!")
+		} else {
+			fmt.Println()
+			PrintVerbose(fmt.Sprintf("\nFile downloaded as %s\n", filePath), verbose)
+		}
+	}
+
+	fmt.Printf("Downloaded %s\n", url)
 }
