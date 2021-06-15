@@ -17,6 +17,7 @@
 package buildtest
 
 import (
+	"os"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -40,6 +41,19 @@ func TestGetPort(t *testing.T) {
 		})
 		Convey("http://www.test.com:8080 port is 8080", func() {
 			So(GetPort("http://www.test.com:8080"), ShouldEqual, "8080")
+		})
+	})
+}
+
+func TestDownload(t *testing.T) {
+	Convey("Download should succeed", t, func() {
+		Convey("File can be download", func() {
+			fileUrl := "https://repo.maven.apache.org/maven2/io/netty/netty-all/4.1.9.Final/netty-all-4.1.9.Final.pom"
+			fileLoc := "/tmp/netty-all-4.1.9.Final.pom"
+			So(FileOrDirExists(fileLoc), ShouldBeFalse)
+			DownloadFile(fileUrl, fileLoc)
+			So(FileOrDirExists(fileLoc), ShouldBeTrue)
+			os.RemoveAll(fileLoc)
 		})
 	})
 }

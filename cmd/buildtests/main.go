@@ -39,7 +39,7 @@ func main() {
 				os.Exit(1)
 			}
 			logUrl = args[0]
-			run(logUrl)
+			build.Run(logUrl, "", targetIndy)
 		},
 	}
 
@@ -66,38 +66,7 @@ func validate(args []string) bool {
 			fmt.Printf("The target indy server can not be empty!\n\n")
 			return false
 		}
+
 	}
 	return true
-}
-
-func run(logUrl string) {
-	log, err := build.GetRespAsPlaintext(logUrl)
-	if err != nil {
-		httpErr := err.(build.HTTPError)
-		fmt.Printf("Request failed! Log url: %s, response status: %d, error message: %s\n", logUrl, httpErr.StatusCode, httpErr.Message)
-		os.Exit(1)
-	}
-	result, err := build.ParseLog(log)
-	if err != nil {
-		fmt.Printf("Log parse failed! Log url: %s, error message: %s\n", logUrl, err.Error())
-		os.Exit(1)
-	}
-	if err == nil {
-		downloads := result["downloads"]
-		if downloads != nil {
-			fmt.Print("Start showing downloads: ==================\n\n")
-			for _, d := range downloads {
-				fmt.Println(d)
-			}
-			fmt.Print("\nFinish showing downloads: ==================\n\n")
-		}
-		uploads := result["uploads"]
-		if uploads != nil {
-			fmt.Print("Start showing uploads: ==================\n\n")
-			for _, u := range uploads {
-				fmt.Println(u)
-			}
-			fmt.Print("\nFinish showing uploads: ==================\n\n")
-		}
-	}
 }
