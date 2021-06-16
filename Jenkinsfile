@@ -13,10 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 def artifact_glob="build/*"
 // def build_image="registry.redhat.io/rhel8/go-toolset:1.15"
-def build_image="quay.io/ligangty/spmm-jenkins-agent-go-centos7:latest"
+def build_image="quay.io/factory2/spmm-jenkins-agent-go-centos7:latest"
 // backup build image
 // def build_image = "quay.io/app-sre/ubi8-go-toolset:1.15.7"
 pipeline {
