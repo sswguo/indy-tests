@@ -2,9 +2,11 @@ package buildtest
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 func Run(logUrl, replacement, targetIndy string) {
@@ -81,4 +83,12 @@ func replaceTarget(artifacts []string, replacement, target string) []string {
 		results = append(results, final)
 	}
 	return results
+}
+
+func generateRandomBuildName() string {
+	buildPrefix := "build-test-"
+	rand.Seed(time.Now().UnixNano())
+	min := 10000
+	max := 99999
+	return fmt.Sprintf(buildPrefix+"%v", rand.Intn(max-min)+min)
 }

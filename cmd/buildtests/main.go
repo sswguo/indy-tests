@@ -26,7 +26,11 @@ import (
 )
 
 // example: http://orchhost/pnc-rest/v2/builds/97241/logs/build
-var logUrl, targetIndy string
+var logUrl, targetIndy, repoReplPattern string
+var processNum int
+
+const DEFAULT_PROCESS_NUM = 1
+const DEFAULT_REPO_REPL_PATTERN = ""
 
 func main() {
 
@@ -44,6 +48,7 @@ func main() {
 	}
 
 	exec.Flags().StringVarP(&targetIndy, "targetIndy", "t", "", "The target indy server to do the testing. If not specified, will get from env variables 'INDY_TARGET'.")
+	exec.Flags().IntVarP(&processNum, "processNum", "p", DEFAULT_PROCESS_NUM, "The number of processes to download and upload files in parralel.")
 
 	if err := exec.Execute(); err != nil {
 		fmt.Println(err)
