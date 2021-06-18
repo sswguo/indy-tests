@@ -19,6 +19,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	build "commonjava/indy/tests/buildtest"
 
@@ -26,11 +27,12 @@ import (
 )
 
 // example: http://orchhost/pnc-rest/v2/builds/97241/logs/build
-var logUrl, targetIndy, repoReplPattern string
+var logUrl, targetIndy, repoReplPattern, buildType string
 var processNum int
 
 const DEFAULT_PROCESS_NUM = 1
 const DEFAULT_REPO_REPL_PATTERN = ""
+const DEFAULT_BUILD_TYPE = "maven"
 
 func main() {
 
@@ -42,12 +44,15 @@ func main() {
 				cmd.Help()
 				os.Exit(1)
 			}
+			// here will use env variables if they are specified for some flags
+			checkEnvVars()
 			logUrl = args[0]
-			build.Run(logUrl, "", targetIndy)
+			build.Run(logUrl, "", targetIndy, buildType, processNum)
 		},
 	}
 
 	exec.Flags().StringVarP(&targetIndy, "targetIndy", "t", "", "The target indy server to do the testing. If not specified, will get from env variables 'INDY_TARGET'.")
+	exec.Flags().StringVarP(&buildType, "buildType", "b", DEFAULT_BUILD_TYPE, "The type of the build, should be 'maven' or 'npm'. Default is 'maven'.")
 	exec.Flags().IntVarP(&processNum, "processNum", "p", DEFAULT_PROCESS_NUM, "The number of processes to download and upload files in parralel.")
 
 	if err := exec.Execute(); err != nil {
@@ -71,7 +76,18 @@ func validate(args []string) bool {
 			fmt.Printf("The target indy server can not be empty!\n\n")
 			return false
 		}
-
 	}
+
 	return true
+}
+
+func checkEnvVars() {
+	envBuildType := os.Getenv("INDY_BUILD_TYPE")
+	if envBuildType == "maven" || envBuildType == "npm" {
+		buildType = envBuildType
+	}
+	envProcNum := os.Getenv("BUILD_PROC_NUM")
+	if num, err := strconv.Atoi(envProcNum); err == nil {
+		processNum = num
+	}
 }

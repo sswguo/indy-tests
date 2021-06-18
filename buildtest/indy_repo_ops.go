@@ -29,8 +29,9 @@ func decideMeta(buildType string) *BuildMetadata {
 		}
 	} else if buildType == TYPE_NPM {
 		return &BuildMetadata{
-			buildType:   buildType,
-			centralName: DEFAULT_NPM_CENTRAL,
+			buildType:     buildType,
+			centralName:   DEFAULT_NPM_CENTRAL,
+			sharedGrpName: DEFAULT_SHARED_GROUP,
 		}
 	}
 	return nil
