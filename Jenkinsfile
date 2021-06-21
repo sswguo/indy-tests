@@ -60,7 +60,7 @@ pipeline {
   }
   options {
     //timestamps()
-    timeout(time: 120, unit: 'MINUTES')
+    timeout(time: 360, unit: 'MINUTES')
   }
   environment {
     PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
