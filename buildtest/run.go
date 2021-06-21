@@ -13,6 +13,7 @@ import (
 )
 
 const TMP_DOWNLOAD_DIR = "/tmp/download"
+const TMP_UPLOAD_DIR = "/tmp/upload"
 
 func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 	indyHost, validated := validateTargetIndy(targetIndy)
@@ -22,11 +23,11 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 
 	newBuildName := generateRandomBuildName()
 
-	//TODO: enable this one when in a working testing indy env
-	// buildMeta := decideMeta(buildType)
-	// if !prepareIndyRepos("http://"+indyHost, newBuildName, *buildMeta) {
-	// 	os.Exit(1)
-	// }
+	// Prepare the indy repos for the whole testing
+	buildMeta := decideMeta(buildType)
+	if !prepareIndyRepos("http://"+indyHost, newBuildName, *buildMeta) {
+		os.Exit(1)
+	}
 
 	log, err := GetRespAsPlaintext(logUrl)
 	if err != nil {
@@ -49,7 +50,7 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 	}
 	if err == nil {
 		downloads := replaceTarget(decorateChecksums(result["downloads"]), "", indyHost, newBuildName)
-		result["downloads"] = nil
+		result["downloads"] = nil // save memory
 		if downloads != nil {
 			if processNum > 1 {
 				//TODO: implement concurrent download here with processNum
@@ -60,16 +61,18 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 				}
 			}
 		}
-		//TODO: handle uploads here
-		// uploads := replaceTarget(result["uploads"], "", targetIndy)
-		// result["uploads"] = nil
-		// if uploads != nil {
-		// 	fmt.Print("Start showing uploads: ==================\n\n")
-		// 	for _, u := range uploads {
-		// 		fmt.Println(u)
-		// 	}
-		// 	fmt.Print("\nFinish showing uploads: ==================\n\n")
-		// }
+		uploads := replaceTarget(result["uploads"], "", indyHost, newBuildName)
+		result["uploads"] = nil // save memory
+		if uploads != nil {
+			if processNum > 1 {
+				//TODO: implement concurrent upload here with processNum
+			} else {
+				for _, url := range uploads {
+					cacheFile := path.Join(TMP_UPLOAD_DIR, path.Base(url))
+					UploadFile(url, cacheFile)
+				}
+			}
+		}
 	}
 }
 
@@ -167,6 +170,7 @@ func replaceTarget(artifacts []string, oldIndyHost, targetIndyHost, buildName st
 	return results
 }
 
+// generate a random 5 digit  number for a build repo like "build-test-xxxxx"
 func generateRandomBuildName() string {
 	buildPrefix := "build-test-"
 	rand.Seed(time.Now().UnixNano())

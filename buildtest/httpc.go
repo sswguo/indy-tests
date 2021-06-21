@@ -218,21 +218,27 @@ func isBinContent(headers http.Header) bool {
 
 func DownloadFile(url, storeFileName string) {
 	fmt.Printf("Downloading %s\n", url)
+	if download(url, storeFileName) {
+		fmt.Printf("Downloaded %s\n", url)
+	}
+}
+
+func download(url, storeFileName string) bool {
 	client := &http.Client{}
 	req, err := http.NewRequest(MethodGet, url, nil)
 	if err != nil {
 		fmt.Printf("Can not download file %s, err: %s\n", url, err)
-		return
+		return false
 	}
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("Can not download file %s, err: %s\n", url, err)
-		return
+		return false
 	}
 
 	if resp.StatusCode >= 400 {
 		fmt.Printf("Can not download file %s because of error response, status: %s, return code: %v\n", url, resp.Status, resp.StatusCode)
-		return
+		return false
 	}
 
 	conDispo := resp.Header.Get("Content-Disposition")
@@ -259,12 +265,37 @@ func DownloadFile(url, storeFileName string) {
 	defer out.Close()
 	if err != nil {
 		fmt.Printf("Warning: cannot download file due to io error! error is %s\n", err.Error())
+		return false
 	} else {
 		_, err = io.Copy(out, resp.Body)
 		if err != nil {
 			fmt.Printf("Warning: cannot download file due to io error! error is %s\n", err.Error())
+			return false
 		}
 	}
+	return true
+}
 
-	fmt.Printf("Downloaded %s\n", url)
+func UploadFile(uploadUrl, cacheFile string) {
+	fmt.Printf("Downloading %s before uploading it. \n", uploadUrl)
+	if download(uploadUrl, cacheFile) {
+		fmt.Printf("Downloaded %s before uploading it. \n", uploadUrl)
+		fmt.Printf("Uploading %s\n", uploadUrl)
+		data, err := os.Open(cacheFile)
+		if err != nil {
+			fmt.Printf("Warning: Upload failed for %s, error: %s", uploadUrl, err.Error())
+			return
+		}
+		defer data.Close()
+
+		mimeType, err := GetFileContentType(data)
+		if err != nil {
+			mimeType = "text/plain"
+		}
+		headers := map[string]string{"Content-Type": mimeType}
+		_, _, succeeded := HTTPRequest(uploadUrl, MethodPut, nil, false, data, headers, "", false)
+		if succeeded {
+			fmt.Printf("Uploaded %s\n", uploadUrl)
+		}
+	}
 }
