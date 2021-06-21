@@ -92,12 +92,19 @@ pipeline {
       }
     }
 
-    stage('Archive') {
+    stage("Run test") {
       steps {
-        echo "Archive"
-        archiveArtifacts artifacts: "$artifact_glob", fingerprint: true
+        sh 'chmod +x ./build/indy-build-tests'
+        sh "./build/indy-build-tests ${BUILD_LOG} -t ${INDY_TARGET} -b ${BUILD_TYPE} -p ${PROCESS_NUM}"
       }
     }
+
+    // stage('Archive') {
+    //   steps {
+    //     echo "Archive"
+    //     archiveArtifacts artifacts: "$artifact_glob", fingerprint: true
+    //   }
+    // }
   }
   post {
     success {
