@@ -129,12 +129,12 @@ func decorateChecksums(downloads []string) []string {
 	downSet := make(map[string]bool)
 	for _, artifact := range downloads {
 		downSet[artifact] = true
-		if strings.HasSuffix(artifact, ".md5") || strings.HasSuffix(artifact, ".sha1") || strings.HasSuffix(artifact, ".sha256") {
+		if strings.HasSuffix(artifact, ".md5") || strings.HasSuffix(artifact, ".sha1") {
 			continue
 		}
 		downSet[artifact+".md5"] = true
 		downSet[artifact+".sha1"] = true
-		downSet[artifact+".sha256"] = true
+		// downSet[artifact+".sha256"] = true
 	}
 	finalDownloads := []string{}
 	for artifact := range downSet {
