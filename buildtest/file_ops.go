@@ -17,45 +17,11 @@
 package buildtest
 
 import (
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 )
 
-func StoreFile(fileName string, content string, overWrite bool) {
-	exists := false
-	if FileOrDirExists(fileName) {
-		if overWrite {
-			// Printlnf("File %s exists, will overwrite it.", fileName)
-			os.Remove(fileName)
-		} else {
-			exists = true
-		}
-	}
-
-	var f *os.File
-	var err error
-	if !exists {
-		f, err = os.Create(fileName)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		f, err = os.Open(fileName)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	_, err = f.Write([]byte(content))
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-}
-
-func FileOrDirExists(name string) bool {
+func fileOrDirExists(name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
 			return false
@@ -64,25 +30,7 @@ func FileOrDirExists(name string) bool {
 	return true
 }
 
-func ReadFile(file string) (string, error) {
-	if !FileOrDirExists(file) {
-		return "", fmt.Errorf("File not found, %s", file)
-	}
-
-	f, err := os.Open(file)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	b, err := ioutil.ReadAll(f)
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
-}
-
-func GetFileContentType(out *os.File) (string, error) {
+func getFileContentType(out *os.File) (string, error) {
 
 	// Only the first 512 bytes are used to sniff the content type.
 	buffer := make([]byte, 512)

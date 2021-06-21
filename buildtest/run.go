@@ -77,17 +77,17 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 }
 
 func prepareCacheDirectories() {
-	if !FileOrDirExists(TMP_DOWNLOAD_DIR) {
+	if !fileOrDirExists(TMP_DOWNLOAD_DIR) {
 		os.Mkdir(TMP_DOWNLOAD_DIR, os.FileMode(0755))
 	}
-	if !FileOrDirExists(TMP_DOWNLOAD_DIR) {
+	if !fileOrDirExists(TMP_DOWNLOAD_DIR) {
 		fmt.Printf("Error: cannot create directory %s for file downloading.\n", TMP_DOWNLOAD_DIR)
 		os.Exit(1)
 	}
-	if !FileOrDirExists(TMP_UPLOAD_DIR) {
+	if !fileOrDirExists(TMP_UPLOAD_DIR) {
 		os.Mkdir(TMP_UPLOAD_DIR, os.FileMode(0755))
 	}
-	if !FileOrDirExists(TMP_UPLOAD_DIR) {
+	if !fileOrDirExists(TMP_UPLOAD_DIR) {
 		fmt.Printf("Error: cannot create directory %s for caching uploading files.\n", TMP_UPLOAD_DIR)
 		os.Exit(1)
 	}
@@ -115,27 +115,27 @@ func validateTargetIndy(targetIndy string) (string, bool) {
 		indyAPIBase = "http://" + indyHost + "/api"
 	}
 
-	Printlnf("Start testing target indy server %s", indyHost)
+	fmt.Printf("Start testing target indy server %s\n", indyHost)
 	_, err := url.ParseRequestURI(indyAPIBase)
 	if err == nil {
 		testPath := "/admin/stores/maven/remote/central"
 		indyTest = indyAPIBase + testPath
 		_, err = url.ParseRequestURI(indyTest)
 		if err != nil {
-			Printlnf("Error: not a valid indy server: %s because %s does not exist", targetIndy, testPath)
+			fmt.Printf("Error: not a valid indy server: %s because %s does not exist\n", targetIndy, testPath)
 			return "", false
 		}
 	} else {
-		Printlnf("Error: not a valid indy server: %s", targetIndy)
+		fmt.Printf("Error: not a valid indy server: %s\n", targetIndy)
 		return "", false
 	}
 	resp, err2 := http.Get(indyTest)
 	if err2 != nil {
-		Printlnf("Error: %s is not a valid indy server. Cause: %s", targetIndy, err2)
+		fmt.Printf("Error: %s is not a valid indy server. Cause: %s\n", targetIndy, err2)
 		return "", false
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		Printlnf("Error: %s returned bad status. Cause: %s", targetIndy, resp.Status)
+		fmt.Printf("Error: %s returned bad status. Cause: %s\n", targetIndy, resp.Status)
 		return "", false
 	}
 	resp.Body.Close()

@@ -50,9 +50,9 @@ func TestDownload(t *testing.T) {
 		Convey("File can be download", func() {
 			fileUrl := "https://repo.maven.apache.org/maven2/io/netty/netty-all/4.1.9.Final/netty-all-4.1.9.Final.pom"
 			fileLoc := "/tmp/netty-all-4.1.9.Final.pom"
-			So(FileOrDirExists(fileLoc), ShouldBeFalse)
+			So(fileOrDirExists(fileLoc), ShouldBeFalse)
 			DownloadFile(fileUrl, fileLoc)
-			So(FileOrDirExists(fileLoc), ShouldBeTrue)
+			So(fileOrDirExists(fileLoc), ShouldBeTrue)
 			os.RemoveAll(fileLoc)
 		})
 	})

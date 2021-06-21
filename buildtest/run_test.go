@@ -14,7 +14,7 @@ func TestDecorate(t *testing.T) {
 			testDownloads := []string{"http://testdownload/maven/for/test/org/jboss/eap/wildfly-clustering-web-extension/7.3.8.GA-redhat-00001/wildfly-clustering-web-extension-7.3.8.GA-redhat-00001.jar",
 				"http://testdownload/maven/for/test/org/jboss/eap/wildfly-configadmin/7.3.8.GA-redhat-00001/wildfly-configadmin-7.3.8.GA-redhat-00001.pom"}
 			finalDowns := decorateChecksums(testDownloads)
-			So(len(finalDowns), ShouldEqual, 8)
+			So(len(finalDowns), ShouldEqual, 6)
 		})
 		Convey("Should avoid duplication", func() {
 			testDownloads := []string{"http://testdownload/maven/for/test/org/jboss/eap/wildfly-clustering-web-extension/7.3.8.GA-redhat-00001/wildfly-clustering-web-extension-7.3.8.GA-redhat-00001.jar",
@@ -22,7 +22,7 @@ func TestDecorate(t *testing.T) {
 				"http://testdownload/maven/for/test/org/jboss/eap/wildfly-configadmin/7.3.8.GA-redhat-00001/wildfly-configadmin-7.3.8.GA-redhat-00001.pom.md5",
 				"http://testdownload/maven/for/test/org/jboss/eap/wildfly-configadmin/7.3.8.GA-redhat-00001/wildfly-configadmin-7.3.8.GA-redhat-00001.pom.sha1"}
 			finalDowns := decorateChecksums(testDownloads)
-			So(len(finalDowns), ShouldEqual, 8)
+			So(len(finalDowns), ShouldEqual, 6)
 		})
 
 	})

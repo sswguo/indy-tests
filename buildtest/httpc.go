@@ -129,7 +129,7 @@ func GetRespAsPlaintext(url string) (string, error) {
 	}
 
 	if !strings.Contains(resp.Header.Get("content-type"), ContentTypePlain) {
-		Printlnf("Warning: response from %s may be not a plain text content, may cause problem", url)
+		fmt.Printf("Warning: response from %s may be not a plain text content, may cause problem\n", url)
 	}
 
 	b, err := ioutil.ReadAll(resp.Body)
@@ -170,7 +170,7 @@ func HTTPRequest(url, method string, auth Authenticate, needResult bool, dataPay
 	}
 
 	if resp.StatusCode >= 400 {
-		Printlnf("%s request not success for %s, status: %s, return code: %v", method, url, resp.Status, resp.StatusCode)
+		fmt.Printf("%s request not success for %s, status: %s, return code: %v\n", method, url, resp.Status, resp.StatusCode)
 		return respText, resp.StatusCode, false
 	}
 
@@ -201,19 +201,6 @@ type HTTPError struct {
 
 func (err HTTPError) Error() string {
 	return err.Message
-}
-
-func isBinContent(headers http.Header) bool {
-	contentType := headers.Get("Content-Type")
-	// fmt.Println(contentType)
-	if strings.HasPrefix(contentType, "text") {
-		return false
-	}
-	if contentType == ContentTypeJSON || contentType == ContentTypeXML {
-		return false
-	}
-
-	return true
 }
 
 func DownloadFile(url, storeFileName string) {
@@ -267,7 +254,7 @@ func download(url, storeFileName string) bool {
 	}
 
 	// Check and create the file
-	for FileOrDirExists(filePath) {
+	if fileOrDirExists(filePath) {
 		filePath = filePath + ".1"
 	}
 	out, err := os.Create(filePath)
@@ -294,7 +281,7 @@ func UploadFile(uploadUrl, cacheFile string) {
 	}
 	defer data.Close()
 
-	mimeType, err := GetFileContentType(data)
+	mimeType, err := getFileContentType(data)
 	if err != nil {
 		mimeType = "text/plain"
 	}
