@@ -41,13 +41,8 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 		os.Exit(1)
 	}
 
-	if !FileOrDirExists(TMP_DOWNLOAD_DIR) {
-		os.Mkdir(TMP_DOWNLOAD_DIR, os.FileMode(0755))
-	}
-	if !FileOrDirExists(TMP_DOWNLOAD_DIR) {
-		fmt.Printf("Error: cannot create directory %s for file downloading.\n", TMP_DOWNLOAD_DIR)
-		os.Exit(1)
-	}
+	prepareCacheDirectories()
+
 	if err == nil {
 		downloads := replaceTargets(decorateChecksums(result["downloads"]), "", indyHost, newBuildName)
 		result["downloads"] = nil // save memory
@@ -78,6 +73,23 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 				}
 			}
 		}
+	}
+}
+
+func prepareCacheDirectories() {
+	if !FileOrDirExists(TMP_DOWNLOAD_DIR) {
+		os.Mkdir(TMP_DOWNLOAD_DIR, os.FileMode(0755))
+	}
+	if !FileOrDirExists(TMP_DOWNLOAD_DIR) {
+		fmt.Printf("Error: cannot create directory %s for file downloading.\n", TMP_DOWNLOAD_DIR)
+		os.Exit(1)
+	}
+	if !FileOrDirExists(TMP_UPLOAD_DIR) {
+		os.Mkdir(TMP_UPLOAD_DIR, os.FileMode(0755))
+	}
+	if !FileOrDirExists(TMP_UPLOAD_DIR) {
+		fmt.Printf("Error: cannot create directory %s for caching uploading files.\n", TMP_UPLOAD_DIR)
+		os.Exit(1)
 	}
 }
 
