@@ -223,6 +223,15 @@ func DownloadFile(url, storeFileName string) {
 	}
 }
 
+func DownloadUploadFileForCache(url, cacheFileName string) bool {
+	fmt.Printf("Downloading %s before uploading it. \n", url)
+	if download(url, cacheFileName) {
+		fmt.Printf("Downloaded %s before uploading it. \n", url)
+		return true
+	}
+	return false
+}
+
 func download(url, storeFileName string) bool {
 	client := &http.Client{}
 	req, err := http.NewRequest(MethodGet, url, nil)
@@ -277,25 +286,21 @@ func download(url, storeFileName string) bool {
 }
 
 func UploadFile(uploadUrl, cacheFile string) {
-	fmt.Printf("Downloading %s before uploading it. \n", uploadUrl)
-	if download(uploadUrl, cacheFile) {
-		fmt.Printf("Downloaded %s before uploading it. \n", uploadUrl)
-		fmt.Printf("Uploading %s\n", uploadUrl)
-		data, err := os.Open(cacheFile)
-		if err != nil {
-			fmt.Printf("Warning: Upload failed for %s, error: %s", uploadUrl, err.Error())
-			return
-		}
-		defer data.Close()
+	fmt.Printf("Uploading %s\n", uploadUrl)
+	data, err := os.Open(cacheFile)
+	if err != nil {
+		fmt.Printf("Warning: Upload failed for %s, error: %s", uploadUrl, err.Error())
+		return
+	}
+	defer data.Close()
 
-		mimeType, err := GetFileContentType(data)
-		if err != nil {
-			mimeType = "text/plain"
-		}
-		headers := map[string]string{"Content-Type": mimeType}
-		_, _, succeeded := HTTPRequest(uploadUrl, MethodPut, nil, false, data, headers, "", false)
-		if succeeded {
-			fmt.Printf("Uploaded %s\n", uploadUrl)
-		}
+	mimeType, err := GetFileContentType(data)
+	if err != nil {
+		mimeType = "text/plain"
+	}
+	headers := map[string]string{"Content-Type": mimeType}
+	_, _, succeeded := HTTPRequest(uploadUrl, MethodPut, nil, false, data, headers, "", false)
+	if succeeded {
+		fmt.Printf("Uploaded %s\n", uploadUrl)
 	}
 }

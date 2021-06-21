@@ -32,7 +32,7 @@ func TestReplaceTarget(t *testing.T) {
 	Convey("Replacing should work", t, func() {
 		testDownloads := []string{"http://testdownload/maven/for/test/org/jboss/eap/wildfly-clustering-web-extension/7.3.8.GA-redhat-00001/wildfly-clustering-web-extension-7.3.8.GA-redhat-00001.jar",
 			"http://testdownload/maven/for/test/org/jboss/eap/wildfly-configadmin/7.3.8.GA-redhat-00001/wildfly-configadmin-7.3.8.GA-redhat-00001.pom"}
-		replaced := replaceTarget(testDownloads, "", "replacedtestdownload", "build-test-12345")
+		replaced := replaceTargets(testDownloads, "", "replacedtestdownload", "build-test-12345")
 		So(replaced[0], ShouldEqual, "http://replacedtestdownload/maven/for/test/org/jboss/eap/wildfly-clustering-web-extension/7.3.8.GA-redhat-00001/wildfly-clustering-web-extension-7.3.8.GA-redhat-00001.jar")
 		So(replaced[1], ShouldEqual, "http://replacedtestdownload/maven/for/test/org/jboss/eap/wildfly-configadmin/7.3.8.GA-redhat-00001/wildfly-configadmin-7.3.8.GA-redhat-00001.pom")
 	})

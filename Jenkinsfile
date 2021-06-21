@@ -67,11 +67,11 @@ pipeline {
     PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
   }
   stages {
-    stage('Prepare') {
-      steps {
-        sh 'printenv'
-      }
-    }
+    // stage('Prepare') {
+    //   steps {
+    //     sh 'printenv'
+    //   }
+    // }
 
     stage('git checkout') {
       steps{

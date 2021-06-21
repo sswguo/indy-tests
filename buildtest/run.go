@@ -49,7 +49,7 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 		os.Exit(1)
 	}
 	if err == nil {
-		downloads := replaceTarget(decorateChecksums(result["downloads"]), "", indyHost, newBuildName)
+		downloads := replaceTargets(decorateChecksums(result["downloads"]), "", indyHost, newBuildName)
 		result["downloads"] = nil // save memory
 		if downloads != nil {
 			if processNum > 1 {
@@ -61,15 +61,20 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 				}
 			}
 		}
-		uploads := replaceTarget(result["uploads"], "", indyHost, newBuildName)
-		result["uploads"] = nil // save memory
-		if uploads != nil {
+		// uploads := replaceTargets(result["uploads"], "", indyHost, newBuildName)
+		// result["uploads"] = nil // save memory
+		if result["uploads"] != nil {
 			if processNum > 1 {
 				//TODO: implement concurrent upload here with processNum
 			} else {
-				for _, url := range uploads {
+				for _, url := range result["uploads"] {
 					cacheFile := path.Join(TMP_UPLOAD_DIR, path.Base(url))
-					UploadFile(url, cacheFile)
+					downloadArtifact := replaceHost(url, "", indyHost)
+					downloaded := DownloadUploadFileForCache(downloadArtifact, cacheFile)
+					if downloaded {
+						replacedUrl := replaceBuildName(downloadArtifact, newBuildName)
+						UploadFile(replacedUrl, cacheFile)
+					}
 				}
 			}
 		}
@@ -143,15 +148,35 @@ func decorateChecksums(downloads []string) []string {
 	return finalDownloads
 }
 
-func replaceTarget(artifacts []string, oldIndyHost, targetIndyHost, buildName string) []string {
+func replaceTargets(artifacts []string, oldIndyHost, targetIndyHost, buildName string) []string {
 	results := []string{}
 	for _, a := range artifacts {
-		repl := oldIndyHost
-		if IsEmptyString(repl) {
-			repl = a[strings.Index(a, "//")+2:]
-			repl = repl[:strings.Index(repl, "/")]
-		}
-		final := strings.ReplaceAll(a, repl, targetIndyHost)
+		final := replaceTarget(a, oldIndyHost, targetIndyHost, buildName)
+		results = append(results, final)
+	}
+	return results
+}
+
+func replaceTarget(artifact, oldIndyHost, targetIndyHost, buildName string) string {
+	final := replaceHost(artifact, oldIndyHost, targetIndyHost)
+	final = replaceBuildName(final, buildName)
+	return final
+}
+
+func replaceHost(artifact, oldIndyHost, targetIndyHost string) string {
+	// First, replace the embedded indy host to the target one
+	repl := oldIndyHost
+	if IsEmptyString(repl) {
+		repl = artifact[strings.Index(artifact, "//")+2:]
+		repl = repl[:strings.Index(repl, "/")]
+	}
+	return strings.ReplaceAll(artifact, repl, targetIndyHost)
+}
+
+func replaceBuildName(artifact, buildName string) string {
+	// Second, if use a new build name we should replace the old one with it.
+	final := artifact
+	if !IsEmptyString(buildName) {
 		buildPat := regexp.MustCompile(`https{0,1}:\/\/.+\/(build-\d+)\/.*`)
 		buildPat.FindAllStringSubmatch(final, 0)
 		matches := buildPat.FindAllStringSubmatch(final, -1)
@@ -164,10 +189,8 @@ func replaceTarget(artifacts []string, oldIndyHost, targetIndyHost, buildName st
 				}
 			}
 		}
-
-		results = append(results, final)
 	}
-	return results
+	return final
 }
 
 // generate a random 5 digit  number for a build repo like "build-test-xxxxx"
