@@ -21,7 +21,8 @@ import (
 	"os"
 	"strconv"
 
-	build "commonjava/indy/tests/buildtest"
+	build "github.com/commonjava/indy-tests/buildtest"
+	"github.com/commonjava/indy-tests/common"
 
 	"github.com/spf13/cobra"
 )
@@ -66,13 +67,13 @@ func validate(args []string) bool {
 		fmt.Printf("logUrl is not specified!\n\n")
 		return false
 	}
-	if build.IsEmptyString(args[0]) {
+	if common.IsEmptyString(args[0]) {
 		fmt.Printf("logUrl cannot be empty!\n\n")
 		return false
 	}
-	if build.IsEmptyString(targetIndy) {
+	if common.IsEmptyString(targetIndy) {
 		targetIndy = os.Getenv("INDY_TARGET")
-		if build.IsEmptyString(targetIndy) {
+		if common.IsEmptyString(targetIndy) {
 			fmt.Printf("The target indy server can not be empty!\n\n")
 			return false
 		}

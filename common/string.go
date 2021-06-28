@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package buildtest
+package common
 
 import (
 	"strings"

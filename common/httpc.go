@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package buildtest
+package common
 
 import (
 	"fmt"
@@ -254,7 +254,7 @@ func download(url, storeFileName string) bool {
 	}
 
 	// Check and create the file
-	if fileOrDirExists(filePath) {
+	if FileOrDirExists(filePath) {
 		filePath = filePath + ".1"
 	}
 	out, err := os.Create(filePath)
@@ -281,7 +281,7 @@ func UploadFile(uploadUrl, cacheFile string) {
 	}
 	defer data.Close()
 
-	mimeType, err := getFileContentType(data)
+	mimeType, err := GetFileContentType(data)
 	if err != nil {
 		mimeType = "text/plain"
 	}

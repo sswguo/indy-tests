@@ -19,10 +19,12 @@ package buildtest
 import (
 	"fmt"
 	"regexp"
+
+	common "github.com/commonjava/indy-tests/common"
 )
 
 func ParseLog(logCnt string) (map[string][]string, error) {
-	if IsEmptyString(logCnt) {
+	if common.IsEmptyString(logCnt) {
 		return nil, fmt.Errorf("The log content is empty!")
 	}
 	downloadR := regexp.MustCompile(`\[INFO\] Downloaded from indy-mvn:\s*(https{0,1}:\/\/.+)\s{1}(\(.+at.+\))`)

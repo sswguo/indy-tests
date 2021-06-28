@@ -14,14 +14,14 @@
  *  limitations under the License.
  */
 
-package buildtest
+package common
 
 import (
 	"net/http"
 	"os"
 )
 
-func fileOrDirExists(name string) bool {
+func FileOrDirExists(name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
 			return false
@@ -30,7 +30,7 @@ func fileOrDirExists(name string) bool {
 	return true
 }
 
-func getFileContentType(out *os.File) (string, error) {
+func GetFileContentType(out *os.File) (string, error) {
 
 	// Only the first 512 bytes are used to sniff the content type.
 	buffer := make([]byte, 512)

@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package buildtest
+package common
 
 import (
 	"os"
@@ -50,9 +50,9 @@ func TestDownload(t *testing.T) {
 		Convey("File can be download", func() {
 			fileUrl := "https://repo.maven.apache.org/maven2/io/netty/netty-all/4.1.9.Final/netty-all-4.1.9.Final.pom"
 			fileLoc := "/tmp/netty-all-4.1.9.Final.pom"
-			So(fileOrDirExists(fileLoc), ShouldBeFalse)
+			So(FileOrDirExists(fileLoc), ShouldBeFalse)
 			DownloadFile(fileUrl, fileLoc)
-			So(fileOrDirExists(fileLoc), ShouldBeTrue)
+			So(FileOrDirExists(fileLoc), ShouldBeTrue)
 			os.RemoveAll(fileLoc)
 		})
 	})

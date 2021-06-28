@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package buildtest
+package common
 
 import (
 	"testing"
@@ -25,10 +25,10 @@ import (
 func TestFileExists(t *testing.T) {
 	Convey("TestFileExists", t, func() {
 		Convey("File should exists", func() {
-			So(fileOrDirExists("/usr/bin/bash"), ShouldBeTrue)
+			So(FileOrDirExists("/usr/bin/bash"), ShouldBeTrue)
 		})
 		Convey("File should not exists", func() {
-			So(fileOrDirExists("/kljsdflksdjf"), ShouldBeFalse)
+			So(FileOrDirExists("/kljsdflksdjf"), ShouldBeFalse)
 		})
 	})
 

@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	common "github.com/commonjava/indy-tests/common"
 )
 
 const TMP_DOWNLOAD_DIR = "/tmp/download"
@@ -30,9 +32,9 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 		os.Exit(1)
 	}
 
-	log, err := GetRespAsPlaintext(logUrl)
+	log, err := common.GetRespAsPlaintext(logUrl)
 	if err != nil {
-		httpErr := err.(HTTPError)
+		httpErr := err.(common.HTTPError)
 		fmt.Printf("Request failed! Log url: %s, response status: %d, error message: %s\n", logUrl, httpErr.StatusCode, httpErr.Message)
 		os.Exit(1)
 	}
@@ -49,7 +51,7 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 		result["downloads"] = nil // save memory
 		downloadFunc := func(artifactUrl string) {
 			fileLoc := path.Join(TMP_DOWNLOAD_DIR, path.Base(artifactUrl))
-			DownloadFile(artifactUrl, fileLoc)
+			common.DownloadFile(artifactUrl, fileLoc)
 		}
 		if downloads != nil {
 			if processNum > 1 {
@@ -65,10 +67,10 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 		uploadFunc := func(artifactUrl string) {
 			cacheFile := path.Join(TMP_UPLOAD_DIR, path.Base(artifactUrl))
 			downloadArtifact := replaceHost(artifactUrl, "", indyHost)
-			downloaded := DownloadUploadFileForCache(downloadArtifact, cacheFile)
+			downloaded := common.DownloadUploadFileForCache(downloadArtifact, cacheFile)
 			if downloaded {
 				replacedUrl := replaceBuildName(downloadArtifact, newBuildName)
-				UploadFile(replacedUrl, cacheFile)
+				common.UploadFile(replacedUrl, cacheFile)
 			}
 		}
 		if result["uploads"] != nil {
@@ -84,17 +86,17 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 }
 
 func prepareCacheDirectories() {
-	if !fileOrDirExists(TMP_DOWNLOAD_DIR) {
+	if !common.FileOrDirExists(TMP_DOWNLOAD_DIR) {
 		os.Mkdir(TMP_DOWNLOAD_DIR, os.FileMode(0755))
 	}
-	if !fileOrDirExists(TMP_DOWNLOAD_DIR) {
+	if !common.FileOrDirExists(TMP_DOWNLOAD_DIR) {
 		fmt.Printf("Error: cannot create directory %s for file downloading.\n", TMP_DOWNLOAD_DIR)
 		os.Exit(1)
 	}
-	if !fileOrDirExists(TMP_UPLOAD_DIR) {
+	if !common.FileOrDirExists(TMP_UPLOAD_DIR) {
 		os.Mkdir(TMP_UPLOAD_DIR, os.FileMode(0755))
 	}
-	if !fileOrDirExists(TMP_UPLOAD_DIR) {
+	if !common.FileOrDirExists(TMP_UPLOAD_DIR) {
 		fmt.Printf("Error: cannot create directory %s for caching uploading files.\n", TMP_UPLOAD_DIR)
 		os.Exit(1)
 	}
@@ -103,9 +105,9 @@ func prepareCacheDirectories() {
 func validateTargetIndy(targetIndy string) (string, bool) {
 	indyHost := targetIndy
 	if strings.HasPrefix(targetIndy, "http") {
-		host := GetHost(targetIndy)
-		port := GetPort(targetIndy)
-		if IsEmptyString(port) || port == "80" {
+		host := common.GetHost(targetIndy)
+		port := common.GetPort(targetIndy)
+		if common.IsEmptyString(port) || port == "80" {
 			indyHost = host
 		} else {
 			indyHost = fmt.Sprintf("%s:%s", host, port)
@@ -185,7 +187,7 @@ func replaceTarget(artifact, oldIndyHost, targetIndyHost, buildName string) stri
 func replaceHost(artifact, oldIndyHost, targetIndyHost string) string {
 	// First, replace the embedded indy host to the target one
 	repl := oldIndyHost
-	if IsEmptyString(repl) {
+	if common.IsEmptyString(repl) {
 		repl = artifact[strings.Index(artifact, "//")+2:]
 		repl = repl[:strings.Index(repl, "/")]
 	}
@@ -195,7 +197,7 @@ func replaceHost(artifact, oldIndyHost, targetIndyHost string) string {
 func replaceBuildName(artifact, buildName string) string {
 	// Second, if use a new build name we should replace the old one with it.
 	final := artifact
-	if !IsEmptyString(buildName) {
+	if !common.IsEmptyString(buildName) {
 		buildPat := regexp.MustCompile(`https{0,1}:\/\/.+\/(build-\d+)\/.*`)
 		buildPat.FindAllStringSubmatch(final, 0)
 		matches := buildPat.FindAllStringSubmatch(final, -1)

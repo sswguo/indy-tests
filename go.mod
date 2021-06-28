@@ -1,5 +1,4 @@
-module commonjava/indy/tests
-
+module github.com/commonjava/indy-tests
 go 1.14
 
 require (
