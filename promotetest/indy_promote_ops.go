@@ -13,27 +13,40 @@ import (
 
 // IndyPromoteVars ...
 type IndyPromoteVars struct {
-	Source string
-	Target string
-	Paths  []string
+	Source         string
+	Target         string
+	Paths          []string
+	Async          bool
+	PurgeSource    bool
+	DryRun         bool
+	FireEvents     bool
+	FailWhenExists bool
+}
+
+func (promoteVars *IndyPromoteVars) FillDefaults() {
+	promoteVars.Async = false
+	promoteVars.DryRun = false
+	promoteVars.PurgeSource = false
+	promoteVars.FireEvents = true
+	promoteVars.FailWhenExists = true
 }
 
 // IndyPromoteJSONTemplate ...
 func IndyPromoteJSONTemplate(indyPromoteVars *IndyPromoteVars) string {
 	request := `{
-  "async": false,
+  "async": {{.Async}},
   "source": "{{.Source}}",
   "target": "{{.Target}}",
   {{if gt (len .Paths) 0}}
   "paths": [{{range $index,$path := .Paths}}"{{$path}}"{{if isNotLast $index $.Paths}},{{end}}{{end}}],
   {{end}}
-  "purgeSource": false,
-  "dryRun": false,
-  "fireEvents": true,
-  "failWhenExists": true
+  "purgeSource": {{.PurgeSource}},
+  "dryRun": {{.DryRun}},
+  "fireEvents": {{.FireEvents}},
+  "failWhenExists": {{.FailWhenExists}}
 }`
 
-	t := template.Must(template.New("settings").Funcs(isNotLast).Parse(request))
+	t := template.Must(template.New("promote_request").Funcs(isNotLast).Parse(request))
 	var buf bytes.Buffer
 	err := t.Execute(&buf, indyPromoteVars)
 	if err != nil {
@@ -45,7 +58,6 @@ func IndyPromoteJSONTemplate(indyPromoteVars *IndyPromoteVars) string {
 }
 
 var isNotLast = template.FuncMap{
-	// The name "inc" is what the function will be called in the template text.
 	"isNotLast": func(index int, array []string) bool {
 		return index < len(array)-1
 	},
