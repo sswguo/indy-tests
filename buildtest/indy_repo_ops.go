@@ -41,7 +41,7 @@ func decideMeta(buildType string) *BuildMetadata {
 
 func prepareIndyRepos(indyURL, buildName string, buildMeta BuildMetadata) bool {
 	if !prepareIndyHosted(indyURL, buildMeta.buildType, buildName) {
-		return true
+		return false
 	}
 	return prepareIndyGroup(indyURL, buildName, buildMeta)
 }
