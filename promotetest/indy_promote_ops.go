@@ -74,7 +74,7 @@ func promote(indyURL, source, target string, paths []string) {
 	URL := fmt.Sprintf("%s/api/promotion/paths/promote", indyURL)
 
 	fmt.Printf("Start promote request:\n %s\n\n", promote)
-	respText, result := common.PostRequest(URL, strings.NewReader(promote))
+	respText, _, result := common.HTTPRequest(URL, common.MethodPost, nil, true, strings.NewReader(promote), nil, "", false)
 
 	if result {
 		fmt.Printf("Promote Done. Result is:\n %s\n\n", respText)
