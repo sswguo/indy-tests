@@ -17,6 +17,7 @@
 package common
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -138,6 +139,41 @@ func GetRespAsPlaintext(url string) (string, error) {
 	}
 
 	return string(b), nil
+}
+
+func GetRespAsJSONType(url string, jsonType interface{}) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return newHTTPError(err.Error(), 0)
+	}
+	defer resp.Body.Close()
+
+	status, statusCode := resp.Status, resp.StatusCode
+
+	if statusCode == StatusUnauthorized {
+		fmt.Print("This API needs authorization, seems you need to get accesss token first. Please have a look at login command.\n\n")
+		return newHTTPError(status, statusCode)
+	}
+
+	if statusCode > StatusBadRequest {
+		return newHTTPError(status, statusCode)
+	}
+
+	if !strings.Contains(resp.Header.Get("content-type"), ContentTypeJSON) {
+		fmt.Printf("Warning: response from %s may be not a JSON content, may cause problem\n", url)
+	}
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return newHTTPError(err.Error(), 0)
+	}
+
+	err = json.Unmarshal(b, jsonType)
+	if err != nil {
+		return newHTTPError(err.Error(), 0)
+	}
+
+	return nil
 }
 
 // HTTPRequest do raw http request with method, input data and headers. If url is trying to access bin content(like file), can use filename parameter to specify where to store this file as.
