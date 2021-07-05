@@ -23,12 +23,18 @@ type IndyPromoteVars struct {
 	FailWhenExists bool
 }
 
-func (promoteVars *IndyPromoteVars) FillDefaults() {
+func (promoteVars *IndyPromoteVars) fillDefaults() {
 	promoteVars.Async = false
 	promoteVars.DryRun = false
 	promoteVars.PurgeSource = false
 	promoteVars.FireEvents = true
 	promoteVars.FailWhenExists = true
+}
+
+func createIndyPromoteVars(source, target string, paths []string) IndyPromoteVars {
+	promoteVars := &IndyPromoteVars{Source: source, Target: target, Paths: paths}
+	promoteVars.fillDefaults()
+	return *promoteVars
 }
 
 // IndyPromoteJSONTemplate ...
