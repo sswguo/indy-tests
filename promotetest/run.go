@@ -29,5 +29,5 @@ func Run(targetIndy, foloTrackId, promoteTargetStore string) {
 		paths = append(paths, entry.Path)
 	}
 
-	promote(indyURL, sourcePromote, targetIndy, paths)
+	promote(indyURL, sourcePromote, promoteTargetStore, paths)
 }
