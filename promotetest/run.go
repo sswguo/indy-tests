@@ -1,7 +1,6 @@
 package promotetest
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -14,7 +13,9 @@ func Run(targetIndy, foloTrackId, promoteTargetStore string) {
 		os.Exit(1)
 	}
 
-	foloTrackContent := getFoloRecord("http://"+indyHost, foloTrackId)
+	indyURL := "http://" + indyHost
+
+	foloTrackContent := getFoloRecord(indyURL, foloTrackId)
 
 	if foloTrackContent.Uploads == nil && len(foloTrackContent.Uploads) == 0 {
 		fmt.Printf("There are not any uploads records in folo build %s, promotion will be ignored!\n", foloTrackId)
@@ -28,8 +29,5 @@ func Run(targetIndy, foloTrackId, promoteTargetStore string) {
 		paths = append(paths, entry.Path)
 	}
 
-	promoteVars := createIndyPromoteVars(sourcePromote, promoteTargetStore, paths)
-
-	b, _ := json.MarshalIndent(promoteVars, "", "\t")
-	fmt.Print(string(b))
+	promote(indyURL, sourcePromote, targetIndy, paths)
 }

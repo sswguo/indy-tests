@@ -55,3 +55,7 @@ func ValidateTargetIndy(targetIndy string) (string, bool) {
 	resp.Body.Close()
 	return indyHost, true
 }
+
+func storeKeyToPath(storeKey string) string {
+	return strings.ReplaceAll(storeKey, ":", "/")
+}
