@@ -73,18 +73,18 @@ pipeline {
     //   }
     // }
 
-    stage('git checkout') {
-      steps{
-        script{
-          checkout([$class      : 'GitSCM', branches: [[name: 'main']], doGenerateSubmoduleConfigurations: false,
-                    extensions  : [[$class: 'CleanCheckout']], submoduleCfg: [],
-                    userRemoteConfigs: [[url: 'https://github.com/ligangty/indy-tests.git', refspec: '+refs/heads/*:refs/remotes/origin/* +refs/pull/*/head:refs/remotes/origin/pull/*/head']]])
-          env.GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+    // stage('git checkout') {
+    //   steps{
+    //     script{
+    //       checkout([$class      : 'GitSCM', branches: [[name: 'main']], doGenerateSubmoduleConfigurations: false,
+    //                 extensions  : [[$class: 'CleanCheckout']], submoduleCfg: [],
+    //                 userRemoteConfigs: [[url: 'https://github.com/Commonjava/indy-tests.git', refspec: '+refs/heads/*:refs/remotes/origin/* +refs/pull/*/head:refs/remotes/origin/pull/*/head']]])
+    //       env.GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
 
-          echo "Building main commit: ${env.GIT_COMMIT}"
-        }
-      }
-    }
+    //       echo "Building main commit: ${env.GIT_COMMIT}"
+    //     }
+    //   }
+    // }
 
     stage('Build') {
       steps {
