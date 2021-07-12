@@ -94,8 +94,8 @@ pipeline {
 
     stage("Run test") {
       steps {
-        sh 'chmod +x ./build/indy-build-tests'
-        sh "./build/indy-build-tests ${BUILD_LOG} -t ${INDY_TARGET} -b ${BUILD_TYPE} -p ${PROCESS_NUM}"
+        sh 'chmod +x ./build/indy-test'
+        sh "./build/indy-test build ${BUILD_LOG} -t ${INDY_TARGET} -b ${BUILD_TYPE} -p ${PROCESS_NUM}"
       }
     }
 
