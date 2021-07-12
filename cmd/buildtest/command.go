@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package main
+package buildtest
 
 import (
 	"fmt"
@@ -35,11 +35,11 @@ const DEFAULT_PROCESS_NUM = 1
 const DEFAULT_REPO_REPL_PATTERN = ""
 const DEFAULT_BUILD_TYPE = "maven"
 
-func main() {
+func NewBuildTestCmd() *cobra.Command {
 
 	exec := &cobra.Command{
-		Use:   "indy-build-tests $logUrl",
-		Short: "indy-build-tests $logUrl",
+		Use:   "build $logUrl",
+		Short: "To do a build test by 'replay' a pnc successful build through its log in log url",
 		Run: func(cmd *cobra.Command, args []string) {
 			if !validate(args) {
 				cmd.Help()
@@ -56,10 +56,11 @@ func main() {
 	exec.Flags().StringVarP(&buildType, "buildType", "b", DEFAULT_BUILD_TYPE, "The type of the build, should be 'maven' or 'npm'. Default is 'maven'.")
 	exec.Flags().IntVarP(&processNum, "processNum", "p", DEFAULT_PROCESS_NUM, "The number of processes to download and upload files in parralel.")
 
-	if err := exec.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	// if err := exec.Execute(); err != nil {
+	// 	fmt.Println(err)
+	// 	os.Exit(1)
+	// }
+	return exec
 }
 
 func validate(args []string) bool {
