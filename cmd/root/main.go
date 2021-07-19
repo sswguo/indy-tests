@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/commonjava/indy-tests/cmd/buildtest"
-	"github.com/commonjava/indy-tests/cmd/promotetest"
 	"github.com/commonjava/indy-tests/cmd/datest"
+	"github.com/commonjava/indy-tests/cmd/promotetest"
 	"github.com/spf13/cobra"
 )
 

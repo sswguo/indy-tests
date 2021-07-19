@@ -1,6 +1,7 @@
 package datest
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,7 +10,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"encoding/json"
 
 	"github.com/commonjava/indy-tests/common"
 )
@@ -32,10 +32,10 @@ type Report struct {
 		ManagedPlugins struct {
 		} `json:"managedPlugins"`
 		ManagedDependencies struct {
-			Dependencies map[string]struct{
-				GroupID     string `json:"groupId"`
-				ArtifactID  string `json:"artifactId"`
-				Version     string `json:"version"`
+			Dependencies map[string]struct {
+				GroupID    string `json:"groupId"`
+				ArtifactID string `json:"artifactId"`
+				Version    string `json:"version"`
 			} `json:"dependencies"`
 		} `json:"managedDependencies,omitempty"`
 	} `json:"modules"`
@@ -57,7 +57,7 @@ func getAlignLog(url string) string {
 
 	responseData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	return string(responseData)
@@ -80,15 +80,13 @@ func lookupMetadata(url string) string {
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	bodyString := string(bodyBytes)
 
 	if strings.Contains(bodyString, "Message:") {
 		fmt.Printf(bodyString)
 	}
-
-	return "Done"
 }
 
 func Run(targetIndy, daGroup string, processNum int) {
@@ -105,25 +103,25 @@ func Run(targetIndy, daGroup string, processNum int) {
 	var urls []string
 
 	files, err := ioutil.ReadDir("alignment_report/")
-    if err != nil {
-        log.Fatal(err)
-    }
- 
-    for _, f := range files {
+	if err != nil {
+		panic(err)
+	}
+
+	for _, f := range files {
 		fmt.Println(f.Name())
 
 		jsonFile, err := os.Open("alignment_report/" + f.Name())
 
 		if err != nil {
-			fmt.Println(err)
+			panic(err)
 		}
 
 		byteValue, _ := ioutil.ReadAll(jsonFile)
 
 		var report Report
-		
+
 		json.Unmarshal(byteValue, &report)
-		
+
 		fmt.Println("Modules length: ", len(report.Modules))
 
 		for _, module := range report.Modules {
@@ -141,13 +139,13 @@ func Run(targetIndy, daGroup string, processNum int) {
 				urls = append(urls, url)
 			}
 		}
-    }
+	}
 
 	fmt.Println("Total requests: ", len(urls), "with routines:", routines)
 
-	concurrentGoroutines := make(chan struct{}, routines) 
+	concurrentGoroutines := make(chan struct{}, routines)
 	var wg sync.WaitGroup
-    
+
 	for i := 0; i < len(urls); i++ {
 		concurrentGoroutines <- struct{}{}
 		wg.Add(1)

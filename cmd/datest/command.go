@@ -14,27 +14,27 @@
  *  limitations under the License.
  */
 
- package datest
+package datest
 
- import (
-	 "fmt"
-	 "os"
-	 "strconv"
- 
-	 "github.com/commonjava/indy-tests/datest"
- 
-	 "github.com/spf13/cobra"
- )
- 
- var targetIndy, daGroup string
- var processNum int
- 
- func NewDATestCmd() *cobra.Command {
- 
-	 exec := &cobra.Command{
-		 Use:   "datest $targetIndy $daGroup $processNum",
-		 Short: "To do a da test based on the alignment logs from PNC build",
-		 Run: func(cmd *cobra.Command, args []string) {
+import (
+	"fmt"
+	"os"
+	"strconv"
+
+	"github.com/commonjava/indy-tests/datest"
+
+	"github.com/spf13/cobra"
+)
+
+var targetIndy, daGroup string
+var processNum int
+
+func NewDATestCmd() *cobra.Command {
+
+	exec := &cobra.Command{
+		Use:   "datest $targetIndy $daGroup $processNum",
+		Short: "To do a da test based on the alignment logs from PNC build",
+		Run: func(cmd *cobra.Command, args []string) {
 			if !validate(args) {
 				cmd.Help()
 				os.Exit(1)
@@ -44,16 +44,16 @@
 				fmt.Println(processNum)
 			}
 			datest.Run(args[0], args[1], processNum)
-		 },
-	 }
- 
-	 return exec
- }
- 
- func validate(args []string) bool {
+		},
+	}
+
+	return exec
+}
+
+func validate(args []string) bool {
 	if len(args) <= 2 {
 		fmt.Printf("there are at least 3 non-empty arguments: targetIndy, daGroup, processNum!\n\n")
 		return false
 	}
 	return true
-} 
+}
