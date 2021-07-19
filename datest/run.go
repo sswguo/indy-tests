@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -63,7 +62,7 @@ func getAlignLog(url string) string {
 	return string(responseData)
 }
 
-func lookupMetadata(url string) string {
+func lookupMetadata(url string) {
 	fmt.Println(url)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
