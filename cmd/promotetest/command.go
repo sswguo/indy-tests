@@ -29,7 +29,7 @@ var targetIndy, trackingId, promoteTarget string
 func NewPromoteTestCmd() *cobra.Command {
 
 	exec := &cobra.Command{
-		Use:   "promote $targetIndy $trackingId $promoteTarget",
+		Use:   "promote $targetIndy $foloTrackId $promoteTarget",
 		Short: "To do a promote test with an existed folo tracking report and an target indy hosted repo",
 		Run: func(cmd *cobra.Command, args []string) {
 			if !validate(args) {
@@ -41,10 +41,6 @@ func NewPromoteTestCmd() *cobra.Command {
 		},
 	}
 
-	// if err := exec.Execute(); err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
 	return exec
 }
 

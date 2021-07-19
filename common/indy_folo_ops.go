@@ -13,13 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package promotetest
+package common
 
 import (
 	"fmt"
 	"os"
-
-	"github.com/commonjava/indy-tests/common"
 )
 
 type TrackingKey struct {
@@ -45,11 +43,11 @@ type TrackedContentEntry struct {
 	StoreKey      string  `json:"storeKey"`
 }
 
-func getFoloRecord(indyURL, foloRecordId string) TrackedContent {
+func GetFoloRecord(indyURL, foloRecordId string) TrackedContent {
 	URL := fmt.Sprintf("%s/api/folo/admin/%s/record", indyURL, foloRecordId)
 	fmt.Printf("Start to get folo tracking record through: %s\n", URL)
 	trackContent := &TrackedContent{}
-	err := common.GetRespAsJSONType(URL, trackContent)
+	err := GetRespAsJSONType(URL, trackContent)
 	if err != nil {
 		fmt.Printf("Error: cannot get folo record %s at indy instance %s, error is: %s\n", foloRecordId, indyURL, err.Error())
 		os.Exit(1)
