@@ -26,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var targetIndy, daGroup string
+var targetIndy, daGroup, dataDir string
 var processNum int
 
 func NewDATestCmd() *cobra.Command {
@@ -39,11 +39,11 @@ func NewDATestCmd() *cobra.Command {
 				cmd.Help()
 				os.Exit(1)
 			}
-			processNum, err := strconv.Atoi(args[2])
+			processNum, err := strconv.Atoi(args[3])
 			if err == nil {
 				fmt.Println(processNum)
 			}
-			datest.Run(args[0], args[1], processNum)
+			datest.Run(args[0], args[1], args[2], processNum)
 		},
 	}
 
@@ -52,7 +52,7 @@ func NewDATestCmd() *cobra.Command {
 
 func validate(args []string) bool {
 	if len(args) <= 2 {
-		fmt.Printf("there are at least 3 non-empty arguments: targetIndy, daGroup, processNum!\n\n")
+		fmt.Printf("there are at least 4 non-empty arguments: targetIndy, daGroup, dataDir, processNum!\n\n")
 		return false
 	}
 	return true

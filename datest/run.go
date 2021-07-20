@@ -88,7 +88,7 @@ func lookupMetadata(url string) {
 	}
 }
 
-func Run(targetIndy, daGroup string, processNum int) {
+func Run(targetIndy, daGroup string, dataDir string, processNum int) {
 
 	indyHost, validated := common.ValidateTargetIndy(targetIndy)
 	if !validated {
@@ -101,7 +101,7 @@ func Run(targetIndy, daGroup string, processNum int) {
 
 	var urls []string
 
-	files, err := ioutil.ReadDir("alignment_report/")
+	files, err := ioutil.ReadDir(dataDir)
 	if err != nil {
 		panic(err)
 	}
@@ -109,7 +109,7 @@ func Run(targetIndy, daGroup string, processNum int) {
 	for _, f := range files {
 		fmt.Println(f.Name())
 
-		jsonFile, err := os.Open("alignment_report/" + f.Name())
+		jsonFile, err := os.Open(dataDir + f.Name())
 
 		if err != nil {
 			panic(err)
