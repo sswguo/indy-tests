@@ -14,10 +14,8 @@
  *  limitations under the License.
  */
 def artifact_glob="build/*"
-// def build_image="registry.redhat.io/rhel8/go-toolset:1.15"
 def build_image="quay.io/factory2/spmm-jenkins-agent-go-centos7:latest"
-// backup build image
-// def build_image = "quay.io/app-sre/ubi8-go-toolset:1.15.7"
+
 pipeline {
   agent {
     kubernetes {
@@ -67,24 +65,6 @@ pipeline {
     PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
   }
   stages {
-    // stage('Prepare') {
-    //   steps {
-    //     sh 'printenv'
-    //   }
-    // }
-
-    // stage('git checkout') {
-    //   steps{
-    //     script{
-    //       checkout([$class      : 'GitSCM', branches: [[name: 'main']], doGenerateSubmoduleConfigurations: false,
-    //                 extensions  : [[$class: 'CleanCheckout']], submoduleCfg: [],
-    //                 userRemoteConfigs: [[url: 'https://github.com/Commonjava/indy-tests.git', refspec: '+refs/heads/*:refs/remotes/origin/* +refs/pull/*/head:refs/remotes/origin/pull/*/head']]])
-    //       env.GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
-
-    //       echo "Building main commit: ${env.GIT_COMMIT}"
-    //     }
-    //   }
-    // }
 
     stage('Build') {
       steps {
@@ -99,12 +79,6 @@ pipeline {
       }
     }
 
-    // stage('Archive') {
-    //   steps {
-    //     echo "Archive"
-    //     archiveArtifacts artifacts: "$artifact_glob", fingerprint: true
-    //   }
-    // }
   }
   post {
     success {

@@ -18,10 +18,28 @@ package buildtest
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 
 	common "github.com/commonjava/indy-tests/common"
 )
+
+// Not used
+func PrepareEntriesByLog(logUrl string) map[string][]string {
+	log, err := common.GetRespAsPlaintext(logUrl)
+	if err != nil {
+		httpErr := err.(common.HTTPError)
+		fmt.Printf("Request failed! Log url: %s, response status: %d, error message: %s\n", logUrl, httpErr.StatusCode, httpErr.Message)
+		os.Exit(1)
+	}
+	result, err := ParseLog(log)
+	if err != nil {
+		fmt.Printf("Log parse failed! Log url: %s, error message: %s\n", logUrl, err.Error())
+		os.Exit(1)
+	}
+
+	return result
+}
 
 func ParseLog(logCnt string) (map[string][]string, error) {
 	if common.IsEmptyString(logCnt) {

@@ -28,7 +28,7 @@ import (
 )
 
 // example: http://orchhost/pnc-rest/v2/builds/97241/logs/build
-var logUrl, targetIndy, repoReplPattern, buildType string
+var targetIndy, repoReplPattern, buildType string
 var processNum int
 
 const DEFAULT_PROCESS_NUM = 1
@@ -38,8 +38,8 @@ const DEFAULT_BUILD_TYPE = "maven"
 func NewBuildTestCmd() *cobra.Command {
 
 	exec := &cobra.Command{
-		Use:   "build $logUrl",
-		Short: "To do a build test by 'replay' a pnc successful build through its log in log url",
+		Use:   "build $indy_url $folo_track_id",
+		Short: "To do a build test by 'replay' a pnc successful build through its folo tracking record",
 		Run: func(cmd *cobra.Command, args []string) {
 			if !validate(args) {
 				cmd.Help()
@@ -47,37 +47,37 @@ func NewBuildTestCmd() *cobra.Command {
 			}
 			// here will use env variables if they are specified for some flags
 			checkEnvVars()
-			logUrl = args[0]
-			build.Run(logUrl, "", targetIndy, buildType, processNum)
+			indyURL := args[0]
+			foloTrackId := args[1]
+			if common.IsEmptyString(targetIndy) {
+				targetIndy = indyURL
+			}
+			build.Run(indyURL, foloTrackId, "", targetIndy, buildType, processNum)
 		},
 	}
 
-	exec.Flags().StringVarP(&targetIndy, "targetIndy", "t", "", "The target indy server to do the testing. If not specified, will get from env variables 'INDY_TARGET'.")
+	exec.Flags().StringVarP(&targetIndy, "targetIndy", "t", "", "The target indy server to do the testing. Will get from this flag or from env variables 'INDY_TARGET' if flag is not specified. If both are not specified, will use $indy_url.")
 	exec.Flags().StringVarP(&buildType, "buildType", "b", DEFAULT_BUILD_TYPE, "The type of the build, should be 'maven' or 'npm'. Default is 'maven'.")
 	exec.Flags().IntVarP(&processNum, "processNum", "p", DEFAULT_PROCESS_NUM, "The number of processes to download and upload files in parralel.")
 
-	// if err := exec.Execute(); err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
 	return exec
 }
 
 func validate(args []string) bool {
-	if len(args) <= 0 {
-		fmt.Printf("logUrl is not specified!\n\n")
+	if len(args) <= 1 {
+		fmt.Printf("indy_url or folo_track_id is not specified!\n\n")
 		return false
 	}
 	if common.IsEmptyString(args[0]) {
-		fmt.Printf("logUrl cannot be empty!\n\n")
+		fmt.Printf("$indy_url cannot be empty!\n\n")
+		return false
+	}
+	if common.IsEmptyString(args[1]) {
+		fmt.Printf("$folo_track_id cannot be empty!\n\n")
 		return false
 	}
 	if common.IsEmptyString(targetIndy) {
 		targetIndy = os.Getenv("INDY_TARGET")
-		if common.IsEmptyString(targetIndy) {
-			fmt.Printf("The target indy server can not be empty!\n\n")
-			return false
-		}
 	}
 
 	return true

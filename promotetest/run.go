@@ -15,7 +15,7 @@ func Run(targetIndy, foloTrackId, promoteTargetStore string) {
 
 	indyURL := "http://" + indyHost
 
-	foloTrackContent := getFoloRecord(indyURL, foloTrackId)
+	foloTrackContent := common.GetFoloRecord(indyURL, foloTrackId)
 
 	if foloTrackContent.Uploads == nil && len(foloTrackContent.Uploads) == 0 {
 		fmt.Printf("There are not any uploads records in folo build %s, promotion will be ignored!\n", foloTrackId)

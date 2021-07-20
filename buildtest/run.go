@@ -16,7 +16,7 @@ import (
 const TMP_DOWNLOAD_DIR = "/tmp/download"
 const TMP_UPLOAD_DIR = "/tmp/upload"
 
-func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
+func Run(indyURL, foloId, replacement, targetIndy, buildType string, processNum int) {
 	indyHost, validated := common.ValidateTargetIndy(targetIndy)
 	if !validated {
 		os.Exit(1)
@@ -30,57 +30,82 @@ func Run(logUrl, replacement, targetIndy, buildType string, processNum int) {
 		os.Exit(1)
 	}
 
-	log, err := common.GetRespAsPlaintext(logUrl)
-	if err != nil {
-		httpErr := err.(common.HTTPError)
-		fmt.Printf("Request failed! Log url: %s, response status: %d, error message: %s\n", logUrl, httpErr.StatusCode, httpErr.Message)
-		os.Exit(1)
-	}
-	result, err := ParseLog(log)
-	if err != nil {
-		fmt.Printf("Log parse failed! Log url: %s, error message: %s\n", logUrl, err.Error())
-		os.Exit(1)
-	}
+	// result := prepareEntriesByLog(logUrl)
+
+	result := prepareEntriesByFolo(indyURL, foloId)
 
 	prepareCacheDirectories()
 
-	if err == nil {
-		downloads := replaceTargets(decorateChecksums(result["downloads"]), "", indyHost, newBuildName)
-		result["downloads"] = nil // save memory
-		downloadFunc := func(artifactUrl string) {
-			fileLoc := path.Join(TMP_DOWNLOAD_DIR, path.Base(artifactUrl))
-			common.DownloadFile(artifactUrl, fileLoc)
-		}
-		if downloads != nil {
-			if processNum > 1 {
-				concurrentRun(processNum, downloads, downloadFunc)
-			} else {
-				for _, url := range downloads {
-					downloadFunc(url)
-				}
-			}
-		}
-		// uploads := replaceTargets(result["uploads"], "", indyHost, newBuildName)
-		// result["uploads"] = nil // save memory
-		uploadFunc := func(artifactUrl string) {
-			cacheFile := path.Join(TMP_UPLOAD_DIR, path.Base(artifactUrl))
-			downloadArtifact := replaceHost(artifactUrl, "", indyHost)
-			downloaded := common.DownloadUploadFileForCache(downloadArtifact, cacheFile)
-			if downloaded {
-				replacedUrl := replaceBuildName(downloadArtifact, newBuildName)
-				common.UploadFile(replacedUrl, cacheFile)
-			}
-		}
-		if result["uploads"] != nil {
-			if processNum > 1 {
-				concurrentRun(processNum, result["uploads"], uploadFunc)
-			} else {
-				for _, url := range result["uploads"] {
-					uploadFunc(url)
-				}
+	fmt.Println("Start handling downloads artifacts.")
+	fmt.Printf("==========================================\n\n")
+	downloads := replaceTargets(result["downloads"], "", indyHost, newBuildName)
+	result["downloads"] = nil // save memory
+	downloadFunc := func(artifactUrl string) {
+		fileLoc := path.Join(TMP_DOWNLOAD_DIR, path.Base(artifactUrl))
+		common.DownloadFile(artifactUrl, fileLoc)
+	}
+	if downloads != nil {
+		if processNum > 1 {
+			concurrentRun(processNum, downloads, downloadFunc)
+		} else {
+			for _, url := range downloads {
+				downloadFunc(url)
 			}
 		}
 	}
+	fmt.Println("==========================================")
+	fmt.Printf("Downloads artifacts handling finished.\n\n")
+
+	fmt.Println("Start handling uploads artifacts.")
+	fmt.Printf("==========================================\n\n")
+	// uploads := replaceTargets(result["uploads"], "", indyHost, newBuildName)
+	// result["uploads"] = nil // save memory
+	uploadFunc := func(artifactUrl string) {
+		cacheFile := path.Join(TMP_UPLOAD_DIR, path.Base(artifactUrl))
+		downloadArtifact := replaceHost(artifactUrl, "", indyHost)
+		downloaded := common.DownloadUploadFileForCache(downloadArtifact, cacheFile)
+		if downloaded {
+			replacedUrl := replaceBuildName(downloadArtifact, newBuildName)
+			common.UploadFile(replacedUrl, cacheFile)
+		}
+	}
+	if result["uploads"] != nil {
+		if processNum > 1 {
+			concurrentRun(processNum, result["uploads"], uploadFunc)
+		} else {
+			for _, url := range result["uploads"] {
+				uploadFunc(url)
+			}
+		}
+	}
+	fmt.Println("==========================================")
+	fmt.Printf("Uploads artifacts handling finished.\n\n")
+}
+
+func prepareEntriesByFolo(indyURL, foloId string) map[string][]string {
+	indy := indyURL
+	if !strings.HasPrefix(indy, "http://") {
+		indy = "http://" + indy
+	}
+	foloTrackContent := common.GetFoloRecord(indy, foloId)
+	indyFinalURL := indy
+	if !strings.HasSuffix(indyFinalURL, "/") {
+		indyFinalURL = indyFinalURL + "/"
+	}
+	result := make(map[string][]string)
+	downloads := []string{}
+	for _, down := range foloTrackContent.Downloads {
+		downUrl := fmt.Sprintf("%sapi/folo/track/%s/maven/group/%s%s", indyFinalURL, foloId, foloId, down.Path)
+		downloads = append(downloads, downUrl)
+	}
+	result["downloads"] = downloads
+	uploads := []string{}
+	for _, up := range foloTrackContent.Uploads {
+		upUrl := fmt.Sprintf("%sapi/folo/track/%s/maven/group/%s%s", indyFinalURL, foloId, foloId, up.Path)
+		uploads = append(uploads, upUrl)
+	}
+	result["uploads"] = uploads
+	return result
 }
 
 func prepareCacheDirectories() {
@@ -100,6 +125,7 @@ func prepareCacheDirectories() {
 	}
 }
 
+// Deprecated as folo is the preferred way now.
 func decorateChecksums(downloads []string) []string {
 	downSet := make(map[string]bool)
 	for _, artifact := range downloads {
@@ -147,7 +173,7 @@ func replaceBuildName(artifact, buildName string) string {
 	// Second, if use a new build name we should replace the old one with it.
 	final := artifact
 	if !common.IsEmptyString(buildName) {
-		buildPat := regexp.MustCompile(`https{0,1}:\/\/.+\/(build-\d+)\/.*`)
+		buildPat := regexp.MustCompile(`https{0,1}:\/\/.+\/(build-\S+?)\/.*`)
 		buildPat.FindAllStringSubmatch(final, 0)
 		matches := buildPat.FindAllStringSubmatch(final, -1)
 		if matches != nil {
