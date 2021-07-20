@@ -74,8 +74,14 @@ pipeline {
 
     stage("Run test") {
       steps {
-        sh 'chmod +x ./build/indy-test'
-        sh "./build/indy-test build ${BUILD_LOG} -t ${INDY_TARGET} -b ${BUILD_TYPE} -p ${PROCESS_NUM}"
+        script {
+          sh 'chmod +x ./build/indy-test'
+          if (env.INDY_TARGET != null) {
+            sh "./build/indy-test build ${ORIGINAL_INDY} ${FOLO_ID} -t ${INDY_TARGET} -b ${BUILD_TYPE} -p ${PROCESS_NUM}"
+          } else {
+            sh "./build/indy-test build ${ORIGINAL_INDY} ${FOLO_ID} -b ${BUILD_TYPE} -p ${PROCESS_NUM}"
+          }
+        }
       }
     }
 
