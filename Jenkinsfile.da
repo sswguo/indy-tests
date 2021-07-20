@@ -78,6 +78,11 @@ pipeline {
     PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
     PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
   }
+  parameters {
+    string(name: 'INDY_TARGET', defaultValue: '', description: 'Enter the indy host.')
+    string(name: 'DA_GROUP', defaultValue: 'DA', description: 'Enter the name of da group.')
+    string(name: 'PROCESS_NUM', defaultValue: '9', description: 'Enter the max number of concurrent goroutines.')
+  }
   stages {
     stage('Build') {
       steps {
@@ -88,7 +93,7 @@ pipeline {
     stage("Run test") {
       steps {
         sh 'chmod +x ./build/indy-test'
-        sh "./build/indy-test datest ${params.INDY_TARGET} ${params.DA_GROUP} ${params.Process_Num}"
+        sh "./build/indy-test datest ${params.INDY_TARGET} ${params.DA_GROUP} ${params.PROCESS_NUM}"
       }
     }
 
