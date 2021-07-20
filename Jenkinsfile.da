@@ -60,6 +60,13 @@ pipeline {
               memory: 8Gi
               cpu: 4000m
           workingDir: /home/jenkins
+          volumeMounts:
+          - name: test-data-volume
+            mountPath: /home/jenkins/indy-tests/datest/alignment_report
+        volumes:
+          - name: test-data-volume
+            configMap:
+              name: da-test-data
       """
     }
   }
