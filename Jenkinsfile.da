@@ -79,9 +79,9 @@ pipeline {
     PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
   }
   parameters {
-    string(name: 'INDY_TARGET', defaultValue: '', description: 'Enter the indy host.')
+    string(name: 'INDY_TARGET', defaultValue: 'indy-indy-stage.apps.ocp-c1.prod.psi.redhat.com', description: 'Enter the indy host.')
     string(name: 'DA_GROUP', defaultValue: 'DA', description: 'Enter the name of da group.')
-    string(name: 'DATA_DIR', defaultValue: '', description: 'The directory of the test data.')
+    string(name: 'DATA_DIR', defaultValue: '/home/jenkins/indy-tests/datest/alignment_report/', description: 'The directory of the test data.')
     string(name: 'PROCESS_NUM', defaultValue: '9', description: 'Enter the max number of concurrent goroutines.')
   }
   stages {
