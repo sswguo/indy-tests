@@ -50,6 +50,7 @@ func NewBuildTestCmd() *cobra.Command {
 			indyURL := args[0]
 			foloTrackId := args[1]
 			if common.IsEmptyString(targetIndy) {
+				fmt.Printf("targetIndy is not specified, will use the same one as the $indy_url: %s\n", indyURL)
 				targetIndy = indyURL
 			}
 			build.Run(indyURL, foloTrackId, "", targetIndy, buildType, processNum)
