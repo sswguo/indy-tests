@@ -8,6 +8,6 @@ import (
 
 func TestStoreKeyToPath(t *testing.T) {
 	Convey("TestFileExists", t, func() {
-		So(storeKeyToPath("maven:hosted:shared-imports"), ShouldEqual, "maven/hosted/shared-imports")
+		So(StoreKeyToPath("maven:hosted:shared-imports"), ShouldEqual, "maven/hosted/shared-imports")
 	})
 }

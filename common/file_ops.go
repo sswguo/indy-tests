@@ -17,6 +17,7 @@
 package common
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 )
@@ -45,4 +46,27 @@ func GetFileContentType(out *os.File) (string, error) {
 	contentType := http.DetectContentType(buffer)
 
 	return contentType, nil
+}
+
+func FileSize(fileLoc string) int64 {
+	fi, err := os.Stat(fileLoc)
+	if err != nil {
+		return 0
+	}
+	// get the size
+	return fi.Size()
+}
+
+func ByteCountSI(b int64) string {
+	const unit = 1000
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := int64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB",
+		float64(b)/float64(div), "kMGTPE"[exp])
 }

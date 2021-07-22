@@ -93,15 +93,19 @@ func prepareEntriesByFolo(indyURL, foloId string) map[string][]string {
 		indyFinalURL = indyFinalURL + "/"
 	}
 	result := make(map[string][]string)
+
 	downloads := []string{}
 	for _, down := range foloTrackContent.Downloads {
 		downUrl := fmt.Sprintf("%sapi/folo/track/%s/maven/group/%s%s", indyFinalURL, foloId, foloId, down.Path)
 		downloads = append(downloads, downUrl)
 	}
 	result["downloads"] = downloads
+
 	uploads := []string{}
 	for _, up := range foloTrackContent.Uploads {
-		upUrl := fmt.Sprintf("%sapi/folo/track/%s/maven/group/%s%s", indyFinalURL, foloId, foloId, up.Path)
+		storePath := common.StoreKeyToPath(up.StoreKey)
+		uploadPath := path.Join("api/content", storePath, up.Path)
+		upUrl := fmt.Sprintf("%s%s", indyFinalURL, uploadPath)
 		uploads = append(uploads, upUrl)
 	}
 	result["uploads"] = uploads
