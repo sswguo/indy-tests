@@ -26,6 +26,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 )
 
 // ContentType for RFC http content type (parts)
@@ -241,9 +242,19 @@ func (err HTTPError) Error() string {
 
 func DownloadFile(url, storeFileName string) {
 	fmt.Printf("Downloading %s\n", url)
+	start := time.Now()
 	if download(url, storeFileName) {
-		fmt.Printf("Downloaded %s\n", url)
+		end := time.Now()
+		diff := end.Sub(start)
+		milliSecs := diff.Milliseconds()
+		size := FileSize(storeFileName)
+		fmt.Printf("Downloaded %s (%s at %s)\n", url, ByteCountSI(size), calculateSpeed(size, int64(milliSecs)))
 	}
+}
+
+func calculateSpeed(size, duration int64) string {
+	speed := (size * 1000) / duration
+	return fmt.Sprintf("%s/s", ByteCountSI(speed))
 }
 
 func DownloadUploadFileForCache(url, cacheFileName string) bool {
@@ -310,6 +321,7 @@ func download(url, storeFileName string) bool {
 
 func UploadFile(uploadUrl, cacheFile string) {
 	fmt.Printf("Uploading %s\n", uploadUrl)
+	start := time.Now()
 	data, err := os.Open(cacheFile)
 	if err != nil {
 		fmt.Printf("Warning: Upload failed for %s, error: %s", uploadUrl, err.Error())
@@ -324,6 +336,10 @@ func UploadFile(uploadUrl, cacheFile string) {
 	headers := map[string]string{"Content-Type": mimeType}
 	_, _, succeeded := HTTPRequest(uploadUrl, MethodPut, nil, false, data, headers, "", false)
 	if succeeded {
-		fmt.Printf("Uploaded %s\n", uploadUrl)
+		end := time.Now()
+		diff := end.Sub(start)
+		milliSecs := diff.Milliseconds()
+		size := FileSize(cacheFile)
+		fmt.Printf("Uploaded %s (%s at %s)\n", uploadUrl, ByteCountSI(size), calculateSpeed(size, int64(milliSecs)))
 	}
 }
