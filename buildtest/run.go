@@ -16,8 +16,12 @@ import (
 const TMP_DOWNLOAD_DIR = "/tmp/download"
 const TMP_UPLOAD_DIR = "/tmp/upload"
 
-func Run(indyURL, foloId, replacement, targetIndy, buildType string, processNum int) {
-	indyHost, validated := common.ValidateTargetIndy(targetIndy)
+func Run(originalIndy, foloId, replacement, targetIndy, buildType string, processNum int) {
+	_, validated := common.ValidateTargetIndy(originalIndy)
+	if !validated {
+		os.Exit(1)
+	}
+	targetIndyHost, validated := common.ValidateTargetIndy(targetIndy)
 	if !validated {
 		os.Exit(1)
 	}
@@ -26,19 +30,19 @@ func Run(indyURL, foloId, replacement, targetIndy, buildType string, processNum 
 
 	// Prepare the indy repos for the whole testing
 	buildMeta := decideMeta(buildType)
-	if !prepareIndyRepos("http://"+indyHost, newBuildName, *buildMeta) {
+	if !prepareIndyRepos("http://"+targetIndyHost, newBuildName, *buildMeta) {
 		os.Exit(1)
 	}
 
 	// result := prepareEntriesByLog(logUrl)
 
-	result := prepareEntriesByFolo(indyURL, foloId)
+	result := prepareEntriesByFolo(originalIndy, targetIndy, foloId)
 
 	prepareCacheDirectories()
 
 	fmt.Println("Start handling downloads artifacts.")
 	fmt.Printf("==========================================\n\n")
-	downloads := replaceTargets(result["downloads"], "", indyHost, newBuildName)
+	downloads := replaceTargets(result["downloads"], "", targetIndyHost, newBuildName)
 	result["downloads"] = nil // save memory
 	downloadFunc := func(artifactUrl string) {
 		fileLoc := path.Join(TMP_DOWNLOAD_DIR, path.Base(artifactUrl))
@@ -62,10 +66,12 @@ func Run(indyURL, foloId, replacement, targetIndy, buildType string, processNum 
 	// result["uploads"] = nil // save memory
 	uploadFunc := func(artifactUrl string) {
 		cacheFile := path.Join(TMP_UPLOAD_DIR, path.Base(artifactUrl))
-		downloadArtifact := replaceHost(artifactUrl, "", indyHost)
-		downloaded := common.DownloadUploadFileForCache(downloadArtifact, cacheFile)
+		downloaded := common.DownloadUploadFileForCache(artifactUrl, cacheFile)
 		if downloaded {
-			replacedUrl := replaceBuildName(downloadArtifact, newBuildName)
+			// after download from original indy, need to replace indy host in path to target indy
+			// host to do the final uploading
+			replacedUrl := replaceHost(artifactUrl, "", targetIndyHost)
+			replacedUrl = replaceBuildName(replacedUrl, newBuildName)
 			common.UploadFile(replacedUrl, cacheFile)
 		}
 	}
@@ -82,30 +88,42 @@ func Run(indyURL, foloId, replacement, targetIndy, buildType string, processNum 
 	fmt.Printf("Uploads artifacts handling finished.\n\n")
 }
 
-func prepareEntriesByFolo(indyURL, foloId string) map[string][]string {
-	indy := indyURL
-	if !strings.HasPrefix(indy, "http://") {
-		indy = "http://" + indy
+func prepareEntriesByFolo(originalIndyURL, targetIndyURL, foloId string) map[string][]string {
+
+	originalIndy := originalIndyURL
+	if !strings.HasPrefix(originalIndy, "http://") {
+		originalIndy = "http://" + originalIndy
 	}
-	foloTrackContent := common.GetFoloRecord(indy, foloId)
-	indyFinalURL := indy
-	if !strings.HasSuffix(indyFinalURL, "/") {
-		indyFinalURL = indyFinalURL + "/"
-	}
+	foloTrackContent := common.GetFoloRecord(originalIndy, foloId)
+
 	result := make(map[string][]string)
 
+	// For downloads entries, we will get the paths and inject them to the final url of target indy
+	// as they should be directly download from target indy.
 	downloads := []string{}
+	targetIndy := targetIndyURL
+	if !strings.HasPrefix(targetIndy, "http://") {
+		targetIndy = "http://" + targetIndy
+	}
+	if !strings.HasSuffix(targetIndy, "/") {
+		targetIndy = targetIndy + "/"
+	}
 	for _, down := range foloTrackContent.Downloads {
-		downUrl := fmt.Sprintf("%sapi/folo/track/%s/maven/group/%s%s", indyFinalURL, foloId, foloId, down.Path)
+		downUrl := fmt.Sprintf("%sapi/folo/track/%s/maven/group/%s%s", targetIndy, foloId, foloId, down.Path)
 		downloads = append(downloads, downUrl)
 	}
 	result["downloads"] = downloads
 
+	// For uploads entries, firstly they should be downloaded from original indy server as they may not
+	// exist in target indy server, so need to use original indy server to make the path
 	uploads := []string{}
+	if !strings.HasSuffix(originalIndy, "/") {
+		originalIndy = originalIndy + "/"
+	}
 	for _, up := range foloTrackContent.Uploads {
 		storePath := common.StoreKeyToPath(up.StoreKey)
 		uploadPath := path.Join("api/content", storePath, up.Path)
-		upUrl := fmt.Sprintf("%s%s", indyFinalURL, uploadPath)
+		upUrl := fmt.Sprintf("%s%s", originalIndy, uploadPath)
 		uploads = append(uploads, upUrl)
 	}
 	result["uploads"] = uploads
