@@ -40,31 +40,40 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 
 	prepareCacheDirectories()
 
+	broken := false
 	fmt.Println("Start handling downloads artifacts.")
 	fmt.Printf("==========================================\n\n")
 	downloads := replaceTargets(result["downloads"], "", targetIndyHost, newBuildName)
 	result["downloads"] = nil // save memory
-	downloadFunc := func(artifactUrl string) {
+	downloadFunc := func(artifactUrl string) bool {
 		fileLoc := path.Join(TMP_DOWNLOAD_DIR, path.Base(artifactUrl))
-		common.DownloadFile(artifactUrl, fileLoc)
+		return common.DownloadFile(artifactUrl, fileLoc)
 	}
 	if downloads != nil {
 		if processNum > 1 {
-			concurrentRun(processNum, downloads, downloadFunc)
+			broken = !concurrentRun(processNum, downloads, downloadFunc)
 		} else {
 			for _, url := range downloads {
-				downloadFunc(url)
+				broken = !downloadFunc(url)
+				if broken {
+					break
+				}
 			}
 		}
 	}
 	fmt.Println("==========================================")
+	if broken {
+		fmt.Printf("Build test failed due to some downloading errors. Please see above logs to see the details.\n\n")
+		os.Exit(1)
+	}
+
 	fmt.Printf("Downloads artifacts handling finished.\n\n")
 
 	fmt.Println("Start handling uploads artifacts.")
 	fmt.Printf("==========================================\n\n")
 	// uploads := replaceTargets(result["uploads"], "", indyHost, newBuildName)
 	// result["uploads"] = nil // save memory
-	uploadFunc := func(artifactUrl string) {
+	uploadFunc := func(artifactUrl string) bool {
 		cacheFile := path.Join(TMP_UPLOAD_DIR, path.Base(artifactUrl))
 		downloaded := common.DownloadUploadFileForCache(artifactUrl, cacheFile)
 		if downloaded {
@@ -72,24 +81,32 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 			// host to do the final uploading
 			replacedUrl := replaceHost(artifactUrl, "", targetIndyHost)
 			replacedUrl = replaceBuildName(replacedUrl, newBuildName)
-			common.UploadFile(replacedUrl, cacheFile)
+			return common.UploadFile(replacedUrl, cacheFile)
 		}
+		return false
 	}
 	if result["uploads"] != nil {
 		if processNum > 1 {
-			concurrentRun(processNum, result["uploads"], uploadFunc)
+			broken = !concurrentRun(processNum, result["uploads"], uploadFunc)
 		} else {
 			for _, url := range result["uploads"] {
-				uploadFunc(url)
+				broken = !uploadFunc(url)
+				if broken {
+					break
+				}
 			}
 		}
 	}
 	fmt.Println("==========================================")
+	if broken {
+		fmt.Printf("Build test failed due to some uploadig errors. Please see above logs to see the details.\n\n")
+		os.Exit(1)
+	}
+
 	fmt.Printf("Uploads artifacts handling finished.\n\n")
 }
 
 func prepareEntriesByFolo(originalIndyURL, targetIndyURL, foloId string) map[string][]string {
-
 	originalIndy := originalIndyURL
 	if !strings.HasPrefix(originalIndy, "http://") {
 		originalIndy = "http://" + originalIndy
@@ -220,11 +237,13 @@ func generateRandomBuildName() string {
 	return fmt.Sprintf(buildPrefix+"%v", rand.Intn(max-min)+min)
 }
 
-func concurrentRun(numWorkers int, artifacts []string, job func(artifact string)) {
-	var ch = make(chan string, numWorkers*5) // This buffered number of chan can be anything as long as it's larger than numWorkers
+func concurrentRun(numWorkers int, artifacts []string, job func(artifact string) bool) bool {
+	ch := make(chan string, numWorkers*5) // This buffered number of chan can be anything as long as it's larger than numWorkers
 	var wg sync.WaitGroup
+	var mu sync.Mutex
+	var results = []bool{}
 
-	// This starts xthreads number of goroutines that wait for something to do
+	// This starts numWorkers number of goroutines that wait for something to do
 	wg.Add(numWorkers)
 	for i := 0; i < numWorkers; i++ {
 		go func() {
@@ -234,16 +253,27 @@ func concurrentRun(numWorkers int, artifacts []string, job func(artifact string)
 					wg.Done()
 					return
 				}
-				job(a) // do the thing
+				mu.Lock()
+				results = append(results, job(a))
+				mu.Unlock()
 			}
 		}()
 	}
 
 	// Now the jobs can be added to the channel, which is used as a queue
 	for _, artifact := range artifacts {
-		ch <- artifact // add i to the queue
+		ch <- artifact // add artifact to the queue
 	}
 
 	close(ch) // This tells the goroutines there's nothing else to do
 	wg.Wait() // Wait for the threads to finish
+
+	finalResult := true
+	for _, result := range results {
+		if finalResult = result; !finalResult {
+			break
+		}
+	}
+
+	return finalResult
 }

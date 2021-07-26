@@ -240,7 +240,7 @@ func (err HTTPError) Error() string {
 	return err.Message
 }
 
-func DownloadFile(url, storeFileName string) {
+func DownloadFile(url, storeFileName string) bool {
 	fmt.Printf("Downloading %s\n", url)
 	start := time.Now()
 	if download(url, storeFileName) {
@@ -249,7 +249,9 @@ func DownloadFile(url, storeFileName string) {
 		milliSecs := diff.Milliseconds()
 		size := FileSize(storeFileName)
 		fmt.Printf("Downloaded %s (%s at %s)\n", url, ByteCountSI(size), calculateSpeed(size, int64(milliSecs)))
+		return true
 	}
+	return false
 }
 
 func calculateSpeed(size, duration int64) string {
@@ -319,13 +321,13 @@ func download(url, storeFileName string) bool {
 	return true
 }
 
-func UploadFile(uploadUrl, cacheFile string) {
+func UploadFile(uploadUrl, cacheFile string) bool {
 	fmt.Printf("Uploading %s\n", uploadUrl)
 	start := time.Now()
 	data, err := os.Open(cacheFile)
 	if err != nil {
 		fmt.Printf("Warning: Upload failed for %s, error: %s", uploadUrl, err.Error())
-		return
+		return false
 	}
 	defer data.Close()
 
@@ -341,5 +343,7 @@ func UploadFile(uploadUrl, cacheFile string) {
 		milliSecs := diff.Milliseconds()
 		size := FileSize(cacheFile)
 		fmt.Printf("Uploaded %s (%s at %s)\n", uploadUrl, ByteCountSI(size), calculateSpeed(size, int64(milliSecs)))
+		return true
 	}
+	return false
 }
