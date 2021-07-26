@@ -26,12 +26,12 @@ func TestDecorate(t *testing.T) {
 	})
 }
 
-func TestReplaceTarget(t *testing.T) {
-	Convey("Replacing should work", t, func() {
-		testDownloads := []string{"http://testdownload/api/folo/track/build-sdekjf-galj/maven/group/build-sdekjf-galj/org/jboss/eap/wildfly-clustering-web-extension/7.3.8.GA-redhat-00001/wildfly-clustering-web-extension-7.3.8.GA-redhat-00001.jar",
-			"http://testdownload/api/folo/track/build-sdekjf-galj/maven/group/build-sdekjf-galj/org/jboss/eap/wildfly-configadmin/7.3.8.GA-redhat-00001/wildfly-configadmin-7.3.8.GA-redhat-00001.pom"}
-		replaced := replaceTargets(testDownloads, "", "replacedtestdownload", "build-test-12345")
-		So(replaced[0], ShouldEqual, "http://replacedtestdownload/api/folo/track/build-test-12345/maven/group/build-test-12345/org/jboss/eap/wildfly-clustering-web-extension/7.3.8.GA-redhat-00001/wildfly-clustering-web-extension-7.3.8.GA-redhat-00001.jar")
-		So(replaced[1], ShouldEqual, "http://replacedtestdownload/api/folo/track/build-test-12345/maven/group/build-test-12345/org/jboss/eap/wildfly-configadmin/7.3.8.GA-redhat-00001/wildfly-configadmin-7.3.8.GA-redhat-00001.pom")
-	})
-}
+// func TestReplaceTarget(t *testing.T) {
+// 	Convey("Replacing should work", t, func() {
+// 		testDownloads := []string{"http://testdownload/api/folo/track/build-sdekjf-galj/maven/group/build-sdekjf-galj/org/jboss/eap/wildfly-clustering-web-extension/7.3.8.GA-redhat-00001/wildfly-clustering-web-extension-7.3.8.GA-redhat-00001.jar",
+// 			"http://testdownload/api/folo/track/build-sdekjf-galj/maven/group/build-sdekjf-galj/org/jboss/eap/wildfly-configadmin/7.3.8.GA-redhat-00001/wildfly-configadmin-7.3.8.GA-redhat-00001.pom"}
+// 		replaced := replaceTargets(testDownloads, "", "replacedtestdownload", "build-test-12345")
+// 		So(replaced[0], ShouldEqual, "http://replacedtestdownload/api/folo/track/build-test-12345/maven/group/build-test-12345/org/jboss/eap/wildfly-clustering-web-extension/7.3.8.GA-redhat-00001/wildfly-clustering-web-extension-7.3.8.GA-redhat-00001.jar")
+// 		So(replaced[1], ShouldEqual, "http://replacedtestdownload/api/folo/track/build-test-12345/maven/group/build-test-12345/org/jboss/eap/wildfly-configadmin/7.3.8.GA-redhat-00001/wildfly-configadmin-7.3.8.GA-redhat-00001.pom")
+// 	})
+// }

@@ -36,14 +36,15 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 
 	// result := prepareEntriesByLog(logUrl)
 
-	result := prepareEntriesByFolo(originalIndy, targetIndy, foloId)
+	result := prepareEntriesByFolo(originalIndy, targetIndy, foloId, newBuildName)
 
 	prepareCacheDirectories()
 
 	broken := false
 	fmt.Println("Start handling downloads artifacts.")
 	fmt.Printf("==========================================\n\n")
-	downloads := replaceTargets(result["downloads"], "", targetIndyHost, newBuildName)
+	downloads := result["downloads"]
+	// downloads := replaceTargets(result["downloads"], "", targetIndyHost, newBuildName)
 	result["downloads"] = nil // save memory
 	downloadFunc := func(artifactUrl string) bool {
 		fileLoc := path.Join(TMP_DOWNLOAD_DIR, path.Base(artifactUrl))
@@ -106,7 +107,7 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 	fmt.Printf("Uploads artifacts handling finished.\n\n")
 }
 
-func prepareEntriesByFolo(originalIndyURL, targetIndyURL, foloId string) map[string][]string {
+func prepareEntriesByFolo(originalIndyURL, targetIndyURL, foloId, newBuildId string) map[string][]string {
 	originalIndy := originalIndyURL
 	if !strings.HasPrefix(originalIndy, "http://") {
 		originalIndy = "http://" + originalIndy
@@ -126,7 +127,7 @@ func prepareEntriesByFolo(originalIndyURL, targetIndyURL, foloId string) map[str
 		targetIndy = targetIndy + "/"
 	}
 	for _, down := range foloTrackContent.Downloads {
-		downUrl := fmt.Sprintf("%sapi/folo/track/%s/maven/group/%s%s", targetIndy, foloId, foloId, down.Path)
+		downUrl := fmt.Sprintf("%sapi/folo/track/%s/maven/group/%s%s", targetIndy, newBuildId, newBuildId, down.Path)
 		downloads = append(downloads, downUrl)
 	}
 	result["downloads"] = downloads
@@ -183,20 +184,20 @@ func decorateChecksums(downloads []string) []string {
 	return finalDownloads
 }
 
-func replaceTargets(artifacts []string, oldIndyHost, targetIndyHost, buildName string) []string {
-	results := []string{}
-	for _, a := range artifacts {
-		final := replaceTarget(a, oldIndyHost, targetIndyHost, buildName)
-		results = append(results, final)
-	}
-	return results
-}
+// func replaceTargets(artifacts []string, oldIndyHost, targetIndyHost, buildName string) []string {
+// 	results := []string{}
+// 	for _, a := range artifacts {
+// 		final := replaceTarget(a, oldIndyHost, targetIndyHost, buildName)
+// 		results = append(results, final)
+// 	}
+// 	return results
+// }
 
-func replaceTarget(artifact, oldIndyHost, targetIndyHost, buildName string) string {
-	final := replaceHost(artifact, oldIndyHost, targetIndyHost)
-	final = replaceBuildName(final, buildName)
-	return final
-}
+// func replaceTarget(artifact, oldIndyHost, targetIndyHost, buildName string) string {
+// 	final := replaceHost(artifact, oldIndyHost, targetIndyHost)
+// 	final = replaceBuildName(final, buildName)
+// 	return final
+// }
 
 func replaceHost(artifact, oldIndyHost, targetIndyHost string) string {
 	// First, replace the embedded indy host to the target one
@@ -212,7 +213,7 @@ func replaceBuildName(artifact, buildName string) string {
 	// Second, if use a new build name we should replace the old one with it.
 	final := artifact
 	if !common.IsEmptyString(buildName) {
-		buildPat := regexp.MustCompile(`https{0,1}:\/\/.+\/(build-\S+?)\/.*`)
+		buildPat := regexp.MustCompile(`https{0,1}:\/\/.+\/api\/folo\/track\/(build-\S+?)\/.*`)
 		buildPat.FindAllStringSubmatch(final, 0)
 		matches := buildPat.FindAllStringSubmatch(final, -1)
 		if matches != nil {
