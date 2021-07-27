@@ -54,3 +54,10 @@ func GetFoloRecord(indyURL, foloRecordId string) TrackedContent {
 	}
 	return *trackContent
 }
+
+func SealFoloRecord(indyURL, foloRecordId string) bool {
+	URL := fmt.Sprintf("%s/api/folo/admin/%s/record", indyURL, foloRecordId)
+	fmt.Printf("Start to seal folo tracking record through: %s\n", URL)
+	_, _, result := HTTPRequest(URL, MethodPost, nil, false, nil, nil, "", false)
+	return result
+}
