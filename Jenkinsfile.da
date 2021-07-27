@@ -85,6 +85,15 @@ pipeline {
     string(name: 'PROCESS_NUM', defaultValue: '9', description: 'Enter the max number of concurrent goroutines.')
   }
   stages {
+    stage('Show golang environment'){
+      steps{
+        script{
+          sh 'go version'
+          sh 'go env'
+        }
+      }
+    }
+    
     stage('Build') {
       steps {
         sh 'make build'
