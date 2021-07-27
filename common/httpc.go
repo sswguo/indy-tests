@@ -147,7 +147,11 @@ func GetRespAsPlaintext(url string) (string, error) {
 func GetRespAsJSONType(url string, jsonType interface{}) error {
 	resp, err := http.Get(url)
 	if err != nil {
-		return newHTTPError(err.Error(), 0)
+		if strings.Contains(err.Error(), "too many transfer encodings") {
+			fmt.Printf("Warning: found that response headers contain more than one 'transfer-encodings'\n")
+		} else {
+			return newHTTPError(err.Error(), 0)
+		}
 	}
 	defer resp.Body.Close()
 
@@ -204,8 +208,12 @@ func HTTPRequest(url, method string, auth Authenticate, needResult bool, dataPay
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		return respText, StatusUnknown, false
+		if strings.Contains(err.Error(), "too many transfer encodings") {
+			fmt.Printf("Warning: found that response headers contain more than one 'transfer-encodings'\n")
+		} else {
+			fmt.Println(err)
+			return respText, StatusUnknown, false
+		}
 	}
 
 	if resp.StatusCode >= 400 {
