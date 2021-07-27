@@ -101,6 +101,13 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 
 		fmt.Printf("Uploads artifacts handling finished.\n\n")
 	}
+	if !broken {
+		targIndy := targetIndy
+		if !strings.HasPrefix(targIndy, "http://") {
+			targIndy = "http://" + targIndy
+		}
+		common.SealFoloRecord(targIndy, newBuildName)
+	}
 }
 
 // For downloads entries, we will get the paths and inject them to the final url of target indy
@@ -221,6 +228,7 @@ func generateRandomBuildName() string {
 }
 
 func concurrentRun(numWorkers int, artifacts map[string][]string, job func(originalArtiURL, targetArtiURL string) bool) bool {
+	fmt.Printf("Start to run job in concurrent mode with thread number %v\n", numWorkers)
 	ch := make(chan []string, numWorkers*5) // This buffered number of chan can be anything as long as it's larger than numWorkers
 	var wg sync.WaitGroup
 	var mu sync.Mutex

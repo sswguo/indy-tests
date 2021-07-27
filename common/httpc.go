@@ -86,6 +86,8 @@ const (
 	MethodOptions = http.MethodOptions
 )
 
+const DATA_TIME = "2006-01-02 15:04:02"
+
 const NotStoreFile = ""
 
 type errorHandler func()
@@ -241,14 +243,14 @@ func (err HTTPError) Error() string {
 }
 
 func DownloadFile(url, storeFileName string) bool {
-	fmt.Printf("Downloading %s\n", url)
+	fmt.Printf("[%s] Downloading %s\n", time.Now().Format(DATA_TIME), url)
 	start := time.Now()
 	if download(url, storeFileName) {
 		end := time.Now()
 		diff := end.Sub(start)
 		milliSecs := diff.Milliseconds()
 		size := FileSize(storeFileName)
-		fmt.Printf("Downloaded %s (%s at %s)\n", url, ByteCountSI(size), calculateSpeed(size, int64(milliSecs)))
+		fmt.Printf("[%s] Downloaded %s (%s at %s)\n", time.Now().Format(DATA_TIME), url, ByteCountSI(size), calculateSpeed(size, int64(milliSecs)))
 		return true
 	}
 	return false
@@ -260,9 +262,9 @@ func calculateSpeed(size, duration int64) string {
 }
 
 func DownloadUploadFileForCache(url, cacheFileName string) bool {
-	fmt.Printf("Downloading %s before uploading it. \n", url)
+	fmt.Printf("[%s] Downloading %s before uploading it. \n", time.Now().Format(DATA_TIME), url)
 	if download(url, cacheFileName) {
-		fmt.Printf("Downloaded %s before uploading it. \n", url)
+		fmt.Printf("[%s] Downloaded %s before uploading it. \n", time.Now().Format(DATA_TIME), url)
 		return true
 	}
 	return false
@@ -322,7 +324,7 @@ func download(url, storeFileName string) bool {
 }
 
 func UploadFile(uploadUrl, cacheFile string) bool {
-	fmt.Printf("Uploading %s\n", uploadUrl)
+	fmt.Printf("[%s] Uploading %s\n", time.Now().Format(DATA_TIME), uploadUrl)
 	start := time.Now()
 	data, err := os.Open(cacheFile)
 	if err != nil {
@@ -342,7 +344,7 @@ func UploadFile(uploadUrl, cacheFile string) bool {
 		diff := end.Sub(start)
 		milliSecs := diff.Milliseconds()
 		size := FileSize(cacheFile)
-		fmt.Printf("Uploaded %s (%s at %s)\n", uploadUrl, ByteCountSI(size), calculateSpeed(size, int64(milliSecs)))
+		fmt.Printf("[%s] Uploaded %s (%s at %s)\n", time.Now().Format(DATA_TIME), uploadUrl, ByteCountSI(size), calculateSpeed(size, int64(milliSecs)))
 		return true
 	}
 	return false
