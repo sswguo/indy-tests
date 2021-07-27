@@ -66,7 +66,14 @@ pipeline {
     PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
   }
   stages {
-
+    stage('Show golang environment'){
+      steps{
+        script{
+          sh 'go version'
+          sh 'go env'
+        }
+      }
+    }
     stage('Build & Test') {
       steps {
         sh 'make test'
