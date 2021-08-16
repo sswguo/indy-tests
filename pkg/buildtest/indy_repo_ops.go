@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	common "github.com/commonjava/indy-tests/common"
+	common "github.com/commonjava/indy-tests/pkg/common"
 )
 
 const (

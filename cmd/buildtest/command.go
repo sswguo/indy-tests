@@ -21,8 +21,8 @@ import (
 	"os"
 	"strconv"
 
-	build "github.com/commonjava/indy-tests/buildtest"
-	"github.com/commonjava/indy-tests/common"
+	build "github.com/commonjava/indy-tests/pkg/buildtest"
+	"github.com/commonjava/indy-tests/pkg/common"
 
 	"github.com/spf13/cobra"
 )

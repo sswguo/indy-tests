@@ -21,7 +21,7 @@ import (
 	"os"
 	"regexp"
 
-	common "github.com/commonjava/indy-tests/common"
+	common "github.com/commonjava/indy-tests/pkg/common"
 )
 
 // Not used

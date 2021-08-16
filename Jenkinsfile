@@ -21,7 +21,7 @@ pipeline {
   agent {
     kubernetes {
       cloud params.JENKINS_AGENT_CLOUD_NAME
-      label "jenkins-slave-${UUID.randomUUID().toString()}"
+      // label "jenkins-slave-${UUID.randomUUID().toString()}"
       serviceAccount "jenkins"
       defaultContainer 'jnlp'
       yaml """

@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	common "github.com/commonjava/indy-tests/common"
+	common "github.com/commonjava/indy-tests/pkg/common"
 )
 
 const TMP_DOWNLOAD_DIR = "/tmp/download"
@@ -106,7 +106,11 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 		if !strings.HasPrefix(targIndy, "http://") {
 			targIndy = "http://" + targIndy
 		}
-		common.SealFoloRecord(targIndy, newBuildName)
+		if common.SealFoloRecord(targIndy, newBuildName) {
+			fmt.Printf("Folo record sealing succeeded for %s", newBuildName)
+		} else {
+			fmt.Printf("Warning: folo record sealing failed for %s", newBuildName)
+		}
 	}
 }
 
