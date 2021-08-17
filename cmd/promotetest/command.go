@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/commonjava/indy-tests/promotetest"
+	"github.com/commonjava/indy-tests/pkg/promotetest"
 	"github.com/spf13/cobra"
 )
 

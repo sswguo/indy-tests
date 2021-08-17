@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/commonjava/indy-tests/common"
+	"github.com/commonjava/indy-tests/pkg/common"
 )
 
 func Run(targetIndy, foloTrackId, promoteTargetStore string) {

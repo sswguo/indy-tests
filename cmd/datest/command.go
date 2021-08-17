@@ -21,7 +21,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/commonjava/indy-tests/datest"
+	"github.com/commonjava/indy-tests/pkg/datest"
 
 	"github.com/spf13/cobra"
 )

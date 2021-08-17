@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/commonjava/indy-tests/common"
+	"github.com/commonjava/indy-tests/pkg/common"
 )
 
 type Report struct {
