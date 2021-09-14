@@ -1,0 +1,80 @@
+{
+  "id": "AMJMVSDAVEAAY",
+  "submitTime": "2021-09-03T02:52:04.997Z",
+  "startTime": "2021-09-03T02:52:05.416Z",
+  "endTime": "2021-09-03T02:57:10.284Z",
+  "progress": "FINISHED",
+  "status": "SUCCESS",
+  "buildContentId": "build-AMJMVSDAVEAAY",
+  "temporaryBuild": false,
+  "scmUrl": "http://code.stage.engineering.redhat.com/gerrit/opentracing-contrib/java-web-servlet-filter.git",
+  "scmRevision": "f04fb3e52809044c8f4147bd022a9a432f5b2a7f",
+  "scmTag": "0.2.3.redhat-00059-f04fb3e5",
+  "buildOutputChecksum": "1213a8b345a95f4c3ad70653bb355fd4",
+  "project": {
+    "id": "925",
+    "name": "opentracing",
+    "description": null,
+    "issueTrackerUrl": null,
+    "projectUrl": null,
+    "engineeringTeam": null,
+    "technicalLeader": null
+  },
+  "scmRepository": {
+    "id": "1510",
+    "internalUrl": "git+ssh://code.stage.engineering.redhat.com/opentracing-contrib/java-web-servlet-filter.git",
+    "externalUrl": "https://github.com/opentracing-contrib/java-web-servlet-filter.git",
+    "preBuildSyncEnabled": true
+  },
+  "environment": {
+    "id": "214",
+    "name": "OpenJDK 1.8; Mvn 3.6.0",
+    "description": "OpenJDK 1.8; Mvn 3.6.0 [builder-rhel-7-j8-mvn3.6.0:1.0.4]",
+    "systemImageRepositoryUrl": "quay.io/rh-newcastle",
+    "systemImageId": "builder-rhel-7-j8-mvn3.6.0:1.0.4",
+    "attributes": {
+      "JDK": "1.8.0",
+      "MAVEN": "3.6.0",
+      "OS": "Linux"
+    },
+    "systemImageType": "DOCKER_IMAGE",
+    "deprecated": true,
+    "hidden": false
+  },
+  "attributes": {
+    "BREW_BUILD_VERSION": "0.2.3.redhat-00059",
+    "BUILD_OUTPUT_OK": "true",
+    "BREW_BUILD_NAME": "io.opentracing.contrib:opentracing-web-servlet-filter-parent"
+  },
+  "user": {
+    "id": "136",
+    "username": "wguo"
+  },
+  "buildConfigRevision": {
+    "id": "3331",
+    "rev": 302610,
+    "name": "opentracing-web-servlet-filter-0.2.3",
+    "buildScript": "mvn clean deploy dependency:tree -DskipTests -Prelease -Dmaven.javadoc.skip=true",
+    "scmRevision": "0.2.3",
+    "creationTime": "2021-02-09T13:33:00.989Z",
+    "modificationTime": "2021-07-13T17:51:36.694Z",
+    "buildType": "MVN",
+    "defaultAlignmentParams": "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
+    "brewPullActive": true
+  },
+  "productMilestone": {
+    "id": "390",
+    "version": "1.0.0.ER1",
+    "endDate": null,
+    "startingDate": "2021-02-09T00:00:00Z",
+    "plannedEndDate": "2021-02-10T00:00:00Z"
+  },
+  "groupBuild": {
+    "id": "2836",
+    "startTime": "2021-09-03T02:52:04.997Z",
+    "endTime": "2021-09-03T03:17:44.363Z",
+    "status": "SUCCESS",
+    "temporaryBuild": false
+  },
+  "noRebuildCause": null
+}

@@ -1,0 +1,10 @@
+[
+ "junit/junit/maven-metadata.xml",
+ "io/opentracing/contrib/opentracing-web-servlet-filter/maven-metadata.xml",
+ "io/opentracing/opentracing-mock/maven-metadata.xml",
+ "io/opentracing/opentracing-api/maven-metadata.xml",
+ "io/opentracing/opentracing-util/maven-metadata.xml",
+ "io/opentracing/contrib/opentracing-web-servlet-filter-parent/maven-metadata.xml",
+ "io/opentracing/contrib/opentracing-web-servlet-filter/maven-metadata.xml",
+ "io/opentracing/contrib/opentracing-web-servlet-filter-parent/maven-metadata.xml"
+]

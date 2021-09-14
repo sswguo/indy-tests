@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/commonjava/indy-tests/cmd/buildtest"
+	"github.com/commonjava/indy-tests/cmd/dataset"
 	"github.com/commonjava/indy-tests/cmd/datest"
 	"github.com/commonjava/indy-tests/cmd/promotetest"
 	"github.com/spf13/cobra"
@@ -21,6 +22,7 @@ func main() {
 	rootCmd.AddCommand(buildtest.NewBuildTestCmd())
 	rootCmd.AddCommand(promotetest.NewPromoteTestCmd())
 	rootCmd.AddCommand(datest.NewDATestCmd())
+	rootCmd.AddCommand(dataset.NewDatasetCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

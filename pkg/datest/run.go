@@ -40,28 +40,6 @@ type Report struct {
 	} `json:"modules"`
 }
 
-func getAlignLog(url string) string {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		panic(err)
-	}
-	req.Header.Set("Accept", "text/plain")
-
-	var c http.Client
-	resp, err := c.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	responseData, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	return string(responseData)
-}
-
 func lookupMetadata(url string) {
 	fmt.Println(url)
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -84,7 +62,7 @@ func lookupMetadata(url string) {
 	bodyString := string(bodyBytes)
 
 	if strings.Contains(bodyString, "Message:") {
-		fmt.Printf(bodyString)
+		fmt.Print(bodyString)
 	}
 }
 
