@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path"
@@ -136,7 +135,7 @@ func formatJsonFile(fileLoc string) {
 	var prettyJSON bytes.Buffer
 	err := json.Indent(&prettyJSON, readByteFromFile(fileLoc), "", "  ")
 	check(err)
-	err = os.WriteFile(fileLoc, prettyJSON.Bytes(), 0644)
+	err = ioutil.WriteFile(fileLoc, prettyJSON.Bytes(), 0644)
 	check(err)
 }
 
@@ -145,7 +144,7 @@ func readByteFromFile(fileLoc string) []byte {
 	check(err)
 	defer jsonFile.Close()
 
-	byteValue, _ := io.ReadAll(jsonFile)
+	byteValue, _ := ioutil.ReadAll(jsonFile)
 	return byteValue
 }
 
@@ -196,11 +195,11 @@ func generateFile(pncBaseUrl, indyBaseUrl, buildDir, buildId string) {
 	os.MkdirAll(buildDir, 0755)
 	if !common.FileOrDirExists(alignLogFile) {
 		alignLog := common.GetAlignLog(pncBaseUrl, buildId)
-		err := os.WriteFile(alignLogFile, []byte(alignLog), 0644)
+		err := ioutil.WriteFile(alignLogFile, []byte(alignLog), 0644)
 		check(err)
 		paths := getMetadataPaths(alignLog)
 		pathsJson, _ := json.MarshalIndent(paths, "", " ")
-		err = os.WriteFile(daFile, pathsJson, 0644)
+		err = ioutil.WriteFile(daFile, pathsJson, 0644)
 		check(err)
 	}
 
