@@ -29,7 +29,7 @@ func NewDatasetCmd() *cobra.Command {
 	exec := &cobra.Command{
 		Use:     "dataset $pncBaseUrl $indyBaseUrl $groupBuildId",
 		Short:   "To generate test dataset from any PNC successful group build",
-		Example: "dataset https://orch-stage.psi.redhat.com http://indy-admin-stage.psi.redhat.com 2836",
+		Example: "dataset https://orch-stage.xyz.com http://indy-admin-stage.xyz.com 2836",
 		Run: func(cmd *cobra.Command, args []string) {
 			if !validate(args) {
 				cmd.Help()
