@@ -242,6 +242,20 @@ func (err HTTPError) Error() string {
 	return err.Message
 }
 
+func HttpExists(url string) bool {
+	client := &http.Client{}
+	req, _ := http.NewRequest(MethodGet, url, nil)
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Printf("Can not get %s, err: %s\n", url, err)
+		return false
+	}
+	if resp.StatusCode == 200 {
+		return true
+	}
+	return false
+}
+
 func DownloadFile(url, storeFileName string) bool {
 	fmt.Printf("[%s] Downloading %s\n", time.Now().Format(DATA_TIME), url)
 	start := time.Now()
