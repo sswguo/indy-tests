@@ -36,9 +36,10 @@ const TARGET_DIR = "target"
  *    with a new version suffix and upload them again to the hosted repo A
  * f. Retrieve the metadata files that will be updated by below promotion (we need to foresee those metadata files)
  * g. Promote the files in hosted repo A to hosted repo pnc-builds.
- *    Because we rename the artifacts and pom files, we can run a test multiple times without conflicting each other.
  * h. Retrieve the metadata files from step #f again, check if the new version is available
- * i. (optional) Delete the temp group and the hosted repo A. This is not mandatory because we use renamed versions.
+ * i. Clean the test files by rollback the promotion.
+ * j. Retrieve the metadata files from step #f again, check if the new version is gone
+ * k. (optional) Delete the temp group and the hosted repo A. This is not mandatory because we use renamed versions.
  *    Leaving them there won't affect the following tests.
  */
 func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
@@ -47,7 +48,7 @@ func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 	check(err)
 
 	//Clone dataset repo
-	datasetRepoDir := funcA_CloneRepo(datasetRepoUrl)
+	datasetRepoDir := funcACloneRepo(datasetRepoUrl)
 	fmt.Printf("Clone SUCCESS, dir: %s\n", datasetRepoDir)
 
 	//TODO: Retrieve the metadata files in da.json
@@ -74,7 +75,7 @@ func check(e error) {
 	}
 }
 
-func funcA_CloneRepo(datasetRepoUrl string) string {
+func funcACloneRepo(datasetRepoUrl string) string {
 	return common.DownloadRepo(datasetRepoUrl)
 }
 
