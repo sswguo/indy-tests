@@ -29,7 +29,7 @@ func NewIntegrationTestCmd() *cobra.Command {
 	exec := &cobra.Command{
 		Use:     "integrationtest $indyBaseUrl $datasetRepoUrl $buildId",
 		Short:   "To run integration test",
-		Example: "integrationtest http://indy-admin-stage.xyz.com https://gitlab.xyz.com/nos/nos-integrationtest 2836",
+		Example: "integrationtest http://indy-admin-stage.xyz.com https://gitlab.xyz.com/nos/nos-integrationtest-dataset 2836",
 		Run: func(cmd *cobra.Command, args []string) {
 			if !validate(args) {
 				cmd.Help()

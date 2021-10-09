@@ -17,8 +17,10 @@
 package integrationtest
 
 import (
+	"fmt"
 	"os"
-	"path"
+
+	"github.com/commonjava/indy-tests/pkg/common"
 )
 
 const TARGET_DIR = "target"
@@ -41,12 +43,12 @@ const TARGET_DIR = "target"
  */
 func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 	//Create target folder (to store downloaded files), e.g, 'target'
-	targetDirLoc := path.Join(TARGET_DIR)
-	err := os.MkdirAll(targetDirLoc, 0755)
+	err := os.MkdirAll(TARGET_DIR, 0755)
 	check(err)
 
-	//TODO: Clone dataset repo, e.g, git clone https://gitlab.xyz.com/nos/nos-integrationtest
-	funcA()
+	//Clone dataset repo
+	datasetRepoDir := funcA_CloneRepo(datasetRepoUrl)
+	fmt.Printf("Clone SUCCESS, dir: %s\n", datasetRepoDir)
 
 	//TODO: Retrieve the metadata files in da.json
 	funcB()
@@ -72,8 +74,8 @@ func check(e error) {
 	}
 }
 
-func funcA() {
-
+func funcA_CloneRepo(datasetRepoUrl string) string {
+	return common.DownloadRepo(datasetRepoUrl)
 }
 
 func funcB() {
