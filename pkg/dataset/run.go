@@ -27,15 +27,20 @@ import (
 	"regexp"
 	"strings"
 
-	common "github.com/commonjava/indy-tests/pkg/common"
+	"github.com/commonjava/indy-tests/pkg/common"
 )
 
 type Info struct {
-	PncBaseUrl   string `json:"pncBaseUrl"`
-	GroupBuildId string `json:"groupBuildId"`
+	PncBaseUrl     string `json:"pncBaseUrl"`
+	BuildId        string `json:"buildId"`
+	BuildType      string `json:"buildType"`
+	TemporaryBuild bool   `json:"temporaryBuild"`
 }
 
 const DATASET_DIR = "dataset"
+const DA_JSON = "da.json"
+const TRACKING_JSON = "tracking.json"
+const INFO_JSON = "info.json"
 
 /**
  * For each group build or normal build, generate folder structure as below.
@@ -63,17 +68,7 @@ func Run(pncBaseUrl, indyBaseUrl, buildId string) {
 	//Create folder, e.g, 'dataset/2836'
 	dirLoc := path.Join(DATASET_DIR, buildId)
 	err := os.MkdirAll(dirLoc, 0755)
-	check(err)
-
-	//Create info.json
-	fileLoc := path.Join(dirLoc, "info.json")
-	if !common.FileOrDirExists(fileLoc) {
-		success := createInfoFile(pncBaseUrl, buildId, fileLoc)
-		if !success {
-			fmt.Println("Create info.json failed.")
-			return
-		}
-	}
+	common.Check(err)
 
 	//Check if this is a group build
 	isGroupBuild := false
@@ -83,26 +78,37 @@ func Run(pncBaseUrl, indyBaseUrl, buildId string) {
 	}
 
 	//Download group-build.json or build.json
+	var buildJsonFileLoc string
 	if isGroupBuild {
-		fileLoc = path.Join(dirLoc, "group-build.json")
-		if !common.FileOrDirExists(fileLoc) {
-			success := common.DownloadFile(groupBuildURL, fileLoc)
+		buildJsonFileLoc = path.Join(dirLoc, "group-build.json")
+		if !common.FileOrDirExists(buildJsonFileLoc) {
+			success := common.DownloadFile(groupBuildURL, buildJsonFileLoc)
 			if !success {
 				fmt.Println("Download group-build.json failed.")
 				return
 			}
-			formatJsonFile(fileLoc)
 		}
 	} else {
 		buildURL := pncBaseUrl + "/pnc-rest/v2/builds/" + buildId
-		fileLoc = path.Join(dirLoc, "build.json")
-		if !common.FileOrDirExists(fileLoc) {
-			success := common.DownloadFile(buildURL, fileLoc)
+		buildJsonFileLoc = path.Join(dirLoc, "build.json")
+		if !common.FileOrDirExists(buildJsonFileLoc) {
+			success := common.DownloadFile(buildURL, buildJsonFileLoc)
 			if !success {
 				fmt.Println("Download build.json failed.")
 				return
 			}
-			formatJsonFile(fileLoc)
+		}
+	}
+
+	formatJsonFile(buildJsonFileLoc)
+
+	//Create info.json
+	infoFileLoc := path.Join(dirLoc, INFO_JSON)
+	if !common.FileOrDirExists(infoFileLoc) {
+		success := createInfoFile(pncBaseUrl, buildId, buildJsonFileLoc, infoFileLoc)
+		if !success {
+			fmt.Println("Create info.json failed.")
+			return
 		}
 	}
 
@@ -133,24 +139,16 @@ func Run(pncBaseUrl, indyBaseUrl, buildId string) {
 //Read a json file, format and override it
 func formatJsonFile(fileLoc string) {
 	var prettyJSON bytes.Buffer
-	err := json.Indent(&prettyJSON, readByteFromFile(fileLoc), "", "  ")
-	check(err)
+	err := json.Indent(&prettyJSON, common.ReadByteFromFile(fileLoc), "", "  ")
+	common.Check(err)
 	err = ioutil.WriteFile(fileLoc, prettyJSON.Bytes(), 0644)
-	check(err)
+	common.Check(err)
 }
 
-func readByteFromFile(fileLoc string) []byte {
-	jsonFile, err := os.Open(fileLoc)
-	check(err)
-	defer jsonFile.Close()
-
-	byteValue, _ := ioutil.ReadAll(jsonFile)
-	return byteValue
-}
-
-func createInfoFile(pncBaseUrl, groupBuildId string, fileLoc string) bool {
-	info := &Info{PncBaseUrl: pncBaseUrl, GroupBuildId: groupBuildId}
-	fmt.Printf("Get %s, %s\n", info.PncBaseUrl, info.GroupBuildId)
+func createInfoFile(pncBaseUrl, buildId string, buildJsonLoc, fileLoc string) bool {
+	tempB, bType := parseBuildJson(buildJsonLoc)
+	info := &Info{PncBaseUrl: pncBaseUrl, BuildId: buildId, TemporaryBuild: tempB, BuildType: bType}
+	fmt.Printf("Get %s, %s\n", info.PncBaseUrl, info.BuildId)
 	b, _ := json.MarshalIndent(info, "", " ")
 	err := ioutil.WriteFile(fileLoc, b, 0644)
 	if err != nil {
@@ -160,15 +158,39 @@ func createInfoFile(pncBaseUrl, groupBuildId string, fileLoc string) bool {
 	return true
 }
 
-func check(e error) {
-	if e != nil {
-		panic(e)
+func parseBuildJson(fileLoc string) (bool, string) {
+	// Read jsonFile
+	byteValue := common.ReadByteFromFile(fileLoc)
+
+	// Parse it
+	var result map[string]interface{}
+	json.Unmarshal([]byte(byteValue), &result)
+
+	// Find temporaryBuild
+	var temporaryBuild bool
+	v := reflect.ValueOf(result["temporaryBuild"])
+	if v.Kind() == reflect.Bool {
+		temporaryBuild = v.Bool()
 	}
+
+	// Find buildType
+	var buildType string
+	v = reflect.ValueOf(result["buildConfigRevision"])
+	if v.Kind() == reflect.Map {
+		for _, key := range v.MapKeys() {
+			if key.String() == "buildType" {
+				buildTypeValue := v.MapIndex(key)
+				buildType = buildTypeValue.Elem().String()
+				break
+			}
+		}
+	}
+	return temporaryBuild, buildType
 }
 
 func parseDependency(pncBaseUrl, indyBaseUrl, buildsDir, fileLoc string) {
 	// Read jsonFile
-	byteValue := readByteFromFile(fileLoc)
+	byteValue := common.ReadByteFromFile(fileLoc)
 
 	// Parse it
 	var result map[string]interface{}
@@ -189,18 +211,18 @@ func parseDependency(pncBaseUrl, indyBaseUrl, buildsDir, fileLoc string) {
 
 func generateFile(pncBaseUrl, indyBaseUrl, buildDir, buildId string) {
 	alignLogFile := path.Join(buildDir, "align.log")
-	daFile := path.Join(buildDir, "da.json")
-	trackingFile := path.Join(buildDir, "tracking.json")
+	daFile := path.Join(buildDir, DA_JSON)
+	trackingFile := path.Join(buildDir, TRACKING_JSON)
 
 	os.MkdirAll(buildDir, 0755)
 	if !common.FileOrDirExists(alignLogFile) {
 		alignLog := common.GetAlignLog(pncBaseUrl, buildId)
 		err := ioutil.WriteFile(alignLogFile, []byte(alignLog), 0644)
-		check(err)
+		common.Check(err)
 		paths := getMetadataPaths(alignLog)
 		pathsJson, _ := json.MarshalIndent(paths, "", " ")
 		err = ioutil.WriteFile(daFile, pathsJson, 0644)
-		check(err)
+		common.Check(err)
 	}
 
 	if !common.FileOrDirExists(trackingFile) {

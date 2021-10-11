@@ -17,13 +17,21 @@
 package integrationtest
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"path"
+	"time"
+
+	logger "github.com/sirupsen/logrus"
 
 	"github.com/commonjava/indy-tests/pkg/common"
+	"github.com/commonjava/indy-tests/pkg/dataset"
+	"github.com/commonjava/indy-tests/pkg/datest"
 )
 
 const TARGET_DIR = "target"
+const DEFAULT_ROUTINES = 4
 
 /*
  * When we start the integration test, it will (in order):
@@ -45,14 +53,24 @@ const TARGET_DIR = "target"
 func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 	//Create target folder (to store downloaded files), e.g, 'target'
 	err := os.MkdirAll(TARGET_DIR, 0755)
-	check(err)
+	common.Check(err)
 
-	//Clone dataset repo
-	datasetRepoDir := funcACloneRepo(datasetRepoUrl)
+	//a. Clone dataset repo
+	datasetRepoDir := cloneRepo(datasetRepoUrl)
 	fmt.Printf("Clone SUCCESS, dir: %s\n", datasetRepoDir)
 
-	//TODO: Retrieve the metadata files in da.json
-	funcB()
+	//Load the info.json
+	var info dataset.Info
+	infoFileLoc := path.Join(datasetRepoDir, buildId, dataset.INFO_JSON)
+	json.Unmarshal(common.ReadByteFromFile(infoFileLoc), &info)
+
+	start := time.Now()
+
+	//b. Retrieve the metadata files in da.json
+	retrieveMetadata(indyBaseUrl, datasetRepoDir, buildId, info)
+	t := time.Now()
+	elapsed := t.Sub(start)
+	fmt.Printf("Retrieve metadata SUCCESS, elapsed(s): %f\n", elapsed.Seconds())
 
 	funcC()
 
@@ -69,18 +87,42 @@ func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 	funcI()
 }
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func funcACloneRepo(datasetRepoUrl string) string {
+func cloneRepo(datasetRepoUrl string) string {
 	return common.DownloadRepo(datasetRepoUrl)
 }
 
-func funcB() {
+func retrieveMetadata(indyBaseUrl, datasetRepoDir, buildId string, info dataset.Info) {
+	fileLoc := path.Join(datasetRepoDir, buildId, dataset.DA_JSON)
 
+	// Read jsonFile
+	byteValue := common.ReadByteFromFile(fileLoc)
+
+	// Parse it
+	var arr []string
+	json.Unmarshal([]byte(byteValue), &arr)
+
+	var urls []string
+	packageType := "maven"
+	if info.BuildType == "NPM" {
+		packageType = "npm"
+	}
+	groupName := "DA"
+	if info.TemporaryBuild {
+		groupName = "DA-temporary"
+	}
+
+	for _, v := range arr {
+		u := common.GetIndyContentUrl(indyBaseUrl, packageType, "group", groupName, v)
+		urls = append(urls, u)
+	}
+
+	if logger.IsLevelEnabled(logger.DebugLevel) {
+		for _, v := range urls {
+			fmt.Println(v)
+		}
+	}
+
+	datest.LookupMetadataByRoutines(urls, DEFAULT_ROUTINES)
 }
 
 func funcC() {
