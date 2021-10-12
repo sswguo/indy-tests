@@ -55,7 +55,7 @@ const (
 func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 	//Create target folder (to store downloaded files), e.g, 'target'
 	err := os.MkdirAll(TARGET_DIR, 0755)
-	common.Check(err)
+	common.RePanic(err)
 
 	//a. Clone dataset repo
 	datasetRepoDir := cloneRepo(datasetRepoUrl)

@@ -70,7 +70,7 @@ func Run(pncBaseUrl, indyBaseUrl, buildId string) {
 	//Create folder, e.g, 'dataset/2836'
 	dirLoc := path.Join(DATASET_DIR, buildId)
 	err := os.MkdirAll(dirLoc, 0755)
-	common.Check(err)
+	common.RePanic(err)
 
 	//Check if this is a group build
 	isGroupBuild := false
@@ -141,9 +141,9 @@ func downloadFileIfNotExist(url, fileLoc string) bool {
 func formatJsonFile(fileLoc string) {
 	var prettyJSON bytes.Buffer
 	err := json.Indent(&prettyJSON, common.ReadByteFromFile(fileLoc), "", "  ")
-	common.Check(err)
+	common.RePanic(err)
 	err = ioutil.WriteFile(fileLoc, prettyJSON.Bytes(), 0644)
-	common.Check(err)
+	common.RePanic(err)
 }
 
 func createInfoFile(pncBaseUrl, buildId string, buildJsonLoc, fileLoc string) bool {
@@ -219,11 +219,11 @@ func generateFile(pncBaseUrl, indyBaseUrl, buildDir, buildId string) {
 	if !common.FileOrDirExists(alignLogFile) {
 		alignLog := common.GetAlignLog(pncBaseUrl, buildId)
 		err := ioutil.WriteFile(alignLogFile, []byte(alignLog), 0644)
-		common.Check(err)
+		common.RePanic(err)
 		paths := getMetadataPaths(alignLog)
 		pathsJson, _ := json.MarshalIndent(paths, "", " ")
 		err = ioutil.WriteFile(daFile, pathsJson, 0644)
-		common.Check(err)
+		common.RePanic(err)
 	}
 
 	if !common.FileOrDirExists(trackingFile) {

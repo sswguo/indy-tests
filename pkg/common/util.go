@@ -16,7 +16,7 @@
 
 package common
 
-func Check(e error) {
+func RePanic(e error) {
 	if e != nil {
 		panic(e)
 	}

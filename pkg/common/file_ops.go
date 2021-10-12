@@ -74,7 +74,7 @@ func ByteCountSI(b int64) string {
 
 func ReadByteFromFile(fileLoc string) []byte {
 	jsonFile, err := os.Open(fileLoc)
-	Check(err)
+	RePanic(err)
 	defer jsonFile.Close()
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
