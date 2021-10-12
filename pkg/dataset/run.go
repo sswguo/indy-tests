@@ -37,10 +37,12 @@ type Info struct {
 	TemporaryBuild bool   `json:"temporaryBuild"`
 }
 
-const DATASET_DIR = "dataset"
-const DA_JSON = "da.json"
-const TRACKING_JSON = "tracking.json"
-const INFO_JSON = "info.json"
+const (
+	DATASET_DIR   = "dataset"
+	DA_JSON       = "da.json"
+	TRACKING_JSON = "tracking.json"
+	INFO_JSON     = "info.json"
+)
 
 /**
  * For each group build or normal build, generate folder structure as below.
@@ -72,8 +74,8 @@ func Run(pncBaseUrl, indyBaseUrl, buildId string) {
 
 	//Check if this is a group build
 	isGroupBuild := false
-	groupBuildURL := pncBaseUrl + "/pnc-rest/v2/group-builds/" + buildId
-	if common.HttpExists(groupBuildURL) {
+	buildURL := pncBaseUrl + "/pnc-rest/v2/group-builds/" + buildId
+	if common.HttpExists(buildURL) {
 		isGroupBuild = true
 	}
 
@@ -81,26 +83,14 @@ func Run(pncBaseUrl, indyBaseUrl, buildId string) {
 	var buildJsonFileLoc string
 	if isGroupBuild {
 		buildJsonFileLoc = path.Join(dirLoc, "group-build.json")
-		if !common.FileOrDirExists(buildJsonFileLoc) {
-			success := common.DownloadFile(groupBuildURL, buildJsonFileLoc)
-			if !success {
-				fmt.Println("Download group-build.json failed.")
-				return
-			}
-		}
 	} else {
-		buildURL := pncBaseUrl + "/pnc-rest/v2/builds/" + buildId
+		buildURL = pncBaseUrl + "/pnc-rest/v2/builds/" + buildId
 		buildJsonFileLoc = path.Join(dirLoc, "build.json")
-		if !common.FileOrDirExists(buildJsonFileLoc) {
-			success := common.DownloadFile(buildURL, buildJsonFileLoc)
-			if !success {
-				fmt.Println("Download build.json failed.")
-				return
-			}
-		}
 	}
 
-	formatJsonFile(buildJsonFileLoc)
+	if downloadFileIfNotExist(buildURL, buildJsonFileLoc) {
+		formatJsonFile(buildJsonFileLoc)
+	}
 
 	//Create info.json
 	infoFileLoc := path.Join(dirLoc, INFO_JSON)
@@ -114,7 +104,7 @@ func Run(pncBaseUrl, indyBaseUrl, buildId string) {
 
 	if isGroupBuild {
 		//Download dependency-graph.json
-		dependencyGraphURL := groupBuildURL + "/dependency-graph"
+		dependencyGraphURL := buildURL + "/dependency-graph"
 		dependencyGraphFileLoc := path.Join(dirLoc, "dependency-graph.json")
 		if !common.FileOrDirExists(dependencyGraphFileLoc) {
 			success := common.DownloadFile(dependencyGraphURL, dependencyGraphFileLoc)
@@ -134,6 +124,17 @@ func Run(pncBaseUrl, indyBaseUrl, buildId string) {
 	} else {
 		generateFile(pncBaseUrl, indyBaseUrl, dirLoc, buildId)
 	}
+}
+
+func downloadFileIfNotExist(url, fileLoc string) bool {
+	if !common.FileOrDirExists(fileLoc) {
+		success := common.DownloadFile(url, fileLoc)
+		if !success {
+			fmt.Printf("Download file %s failed\n", fileLoc)
+			return false
+		}
+	}
+	return true
 }
 
 //Read a json file, format and override it

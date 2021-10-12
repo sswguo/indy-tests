@@ -30,8 +30,10 @@ import (
 	"github.com/commonjava/indy-tests/pkg/datest"
 )
 
-const TARGET_DIR = "target"
-const DEFAULT_ROUTINES = 4
+const (
+	TARGET_DIR       = "target"
+	DEFAULT_ROUTINES = 4
+)
 
 /*
  * When we start the integration test, it will (in order):
@@ -72,7 +74,8 @@ func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 	elapsed := t.Sub(start)
 	fmt.Printf("Retrieve metadata SUCCESS, elapsed(s): %f\n", elapsed.Seconds())
 
-	funcC()
+	//c. Create a temp group same to PNC build group
+	createTempBuildGroup()
 
 	funcD()
 
@@ -85,6 +88,10 @@ func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 	funcH()
 
 	funcI()
+
+	funcJ()
+
+	funcK()
 }
 
 func cloneRepo(datasetRepoUrl string) string {
@@ -108,7 +115,7 @@ func retrieveMetadata(indyBaseUrl, datasetRepoDir, buildId string, info dataset.
 	}
 	groupName := "DA"
 	if info.TemporaryBuild {
-		groupName = "DA-temporary"
+		groupName = "DA-temporary-builds"
 	}
 
 	for _, v := range arr {
@@ -125,7 +132,7 @@ func retrieveMetadata(indyBaseUrl, datasetRepoDir, buildId string, info dataset.
 	datest.LookupMetadataByRoutines(urls, DEFAULT_ROUTINES)
 }
 
-func funcC() {
+func createTempBuildGroup() {
 
 }
 
@@ -150,5 +157,13 @@ func funcH() {
 }
 
 func funcI() {
+
+}
+
+func funcJ() {
+
+}
+
+func funcK() {
 
 }
