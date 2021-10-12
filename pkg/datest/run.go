@@ -118,8 +118,11 @@ func Run(targetIndy, daGroup string, dataDir string, processNum int) {
 		}
 	}
 
-	fmt.Println("Total requests: ", len(urls), "with routines:", routines)
+	LookupMetadataByRoutines(urls, routines)
+}
 
+func LookupMetadataByRoutines(urls []string, routines int) {
+	fmt.Println("Total requests: ", len(urls), "with routines:", routines)
 	concurrentGoroutines := make(chan struct{}, routines)
 	var wg sync.WaitGroup
 
@@ -138,5 +141,4 @@ func Run(targetIndy, daGroup string, dataDir string, processNum int) {
 	}
 
 	wg.Wait()
-
 }

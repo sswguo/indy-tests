@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
 	"strings"
 )
 
@@ -58,4 +59,8 @@ func ValidateTargetIndy(targetIndy string) (string, bool) {
 
 func StoreKeyToPath(storeKey string) string {
 	return strings.ReplaceAll(storeKey, ":", "/")
+}
+
+func GetIndyContentUrl(indyBaseUrl, packageType, repoType, repoName, aPath string) string {
+	return indyBaseUrl + path.Join("/api/content", packageType, repoType, repoName, aPath)
 }

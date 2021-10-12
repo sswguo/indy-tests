@@ -18,6 +18,7 @@ package common
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 )
@@ -69,4 +70,13 @@ func ByteCountSI(b int64) string {
 	}
 	return fmt.Sprintf("%.1f %cB",
 		float64(b)/float64(div), "kMGTPE"[exp])
+}
+
+func ReadByteFromFile(fileLoc string) []byte {
+	jsonFile, err := os.Open(fileLoc)
+	RePanic(err)
+	defer jsonFile.Close()
+
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	return byteValue
 }
