@@ -63,19 +63,16 @@ pipeline {
       """
     }
   }
-  triggers {
-    // TODO let's enable this after the test
+  // TODO let's enable this after the test
+  //triggers {
     //cron('@midnight')
-  }
+  //}
   options {
     timeout(time: 360, unit: 'MINUTES')
   }
   environment {
     PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
     PIPELINE_USERNAME = sh(returnStdout: true, script: 'id -un').trim()
-  }
-  parameters {
-      // TODO 
   }
   stages {
     stage('Show golang environment'){
