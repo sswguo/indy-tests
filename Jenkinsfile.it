@@ -55,15 +55,8 @@ pipeline {
               memory: 8Gi
               cpu: 4000m
           workingDir: /home/jenkins
-          volumeMounts:
-            - name: vol-indy-integration-test
-              mountPath: ${env.TEST_MOUNT_PATH}
-        volumes:
-          - name: vol-indy-integration-test
-            persistentVolumeClaim:
-              claimName: indy-integration-test
       """
-      workspaceVolume persistentVolumeClaimWorkspaceVolume(claimName: 'indy-integration-test', readOnly: false)
+      //workspaceVolume persistentVolumeClaimWorkspaceVolume(claimName: 'indy-integration-test', readOnly: false)
     }
   }
   // TODO let's enable this after the test
