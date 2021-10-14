@@ -53,11 +53,19 @@ pipeline {
               memory: 8Gi
               cpu: 4000m
           workingDir: /home/jenkins
+          volumeMounts:
+            - name: vol-indy-integration-test
+              mountPath: /opt/indy/it
+        volumes:
+          - name: vol-indy-integration-test
+            persistentVolumeClaim:
+              claimName: indy-integration-test
       """
     }
   }
   triggers {
-    cron('@midnight')
+    // TODO let's enable this after the test
+    //cron('@midnight')
   }
   options {
     timeout(time: 360, unit: 'MINUTES')
@@ -86,10 +94,9 @@ pipeline {
     }
 
     stage("Run test") {
-      // TODO specify the parameters later
       steps {
         sh 'chmod +x ./build/indy-test'
-        sh "./build/indy-test integrationtest <PARAMETERS>"
+        sh "./build/indy-test integrationtest ${INDY_URL} ${DATASET_REPO_URL} ${BUILD_ID}"
       }
     }
 
