@@ -55,7 +55,7 @@ pipeline {
           workingDir: /home/jenkins
           volumeMounts:
             - name: vol-indy-integration-test
-              mountPath: /opt/indy/it
+              mountPath: ${env.TEST_MOUNT_PATH}
         volumes:
           - name: vol-indy-integration-test
             persistentVolumeClaim:
