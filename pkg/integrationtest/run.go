@@ -19,12 +19,15 @@ package integrationtest
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	logger "github.com/sirupsen/logrus"
 
+	"github.com/commonjava/indy-tests/pkg/buildtest"
 	"github.com/commonjava/indy-tests/pkg/common"
 	"github.com/commonjava/indy-tests/pkg/dataset"
 	"github.com/commonjava/indy-tests/pkg/datest"
@@ -49,8 +52,7 @@ const (
  * h. Retrieve the metadata files from step #f again, check if the new version is available
  * i. Clean the test files by rollback the promotion.
  * j. Retrieve the metadata files from step #f again, check if the new version is gone
- * k. (optional) Delete the temp group and the hosted repo A. This is not mandatory because we use renamed versions.
- *    Leaving them there won't affect the following tests.
+ * k. Delete the temp group and the hosted repo A. Delete folo record.
  */
 func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 	//Create target folder (to store downloaded files), e.g, 'target'
@@ -74,12 +76,17 @@ func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 	elapsed := t.Sub(start)
 	fmt.Printf("Retrieve metadata SUCCESS, elapsed(s): %f\n", elapsed.Seconds())
 
-	//c. Create a temp group same to PNC build group
-	createTempBuildGroup()
-
-	funcD()
-
-	funcE()
+	//c/d/e. Create a mock build group, download files, rename to-be-uploaded files
+	packageType := getPackageType(info)
+	foloFileLoc := path.Join(datasetRepoDir, buildId, dataset.TRACKING_JSON)
+	foloTrackContent := common.GetFoloRecordFromFile(foloFileLoc)
+	originalIndy := getOriginalIndyBaseUrl(foloTrackContent.Uploads[0].LocalUrl)
+	processNum := 1
+	prev := t
+	buildName := buildtest.DoRun(originalIndy, "", indyBaseUrl, packageType, foloTrackContent, processNum)
+	t = time.Now()
+	elapsed = t.Sub(prev)
+	fmt.Printf("Create mock group(%s) and download/upload SUCCESS, elapsed(s): %f\n", buildName, elapsed.Seconds())
 
 	funcF()
 
@@ -91,7 +98,8 @@ func Run(indyBaseUrl, datasetRepoUrl, buildId string) {
 
 	funcJ()
 
-	funcK()
+	//k. Delete the temp group and the hosted repo, and folo record
+	cleanUp(indyBaseUrl, packageType, buildName)
 }
 
 func cloneRepo(datasetRepoUrl string) string {
@@ -109,10 +117,7 @@ func retrieveMetadata(indyBaseUrl, datasetRepoDir, buildId string, info dataset.
 	json.Unmarshal([]byte(byteValue), &arr)
 
 	var urls []string
-	packageType := "maven"
-	if info.BuildType == "NPM" {
-		packageType = "npm"
-	}
+	packageType := getPackageType(info)
 	groupName := "DA"
 	if info.TemporaryBuild {
 		groupName = "DA-temporary-builds"
@@ -132,16 +137,20 @@ func retrieveMetadata(indyBaseUrl, datasetRepoDir, buildId string, info dataset.
 	datest.LookupMetadataByRoutines(urls, DEFAULT_ROUTINES)
 }
 
-func createTempBuildGroup() {
-
+func getPackageType(info dataset.Info) string {
+	packageType := "maven"
+	if strings.EqualFold(info.BuildType, "NPM") {
+		packageType = "npm"
+	}
+	return packageType
 }
 
-func funcD() {
-
-}
-
-func funcE() {
-
+func getOriginalIndyBaseUrl(localUrl string) string {
+	u, err := url.Parse(localUrl)
+	if err != nil {
+		panic(err)
+	}
+	return u.Scheme + "://" + u.Host
 }
 
 func funcF() {
@@ -164,6 +173,12 @@ func funcJ() {
 
 }
 
-func funcK() {
+func cleanUp(indyBaseUrl, packageType, buildName string) {
+	buildtest.DeleteIndyTestRepos(indyBaseUrl, packageType, buildName)
 
+	if common.DeleteFoloRecord(indyBaseUrl, buildName) {
+		fmt.Printf("Delete folo record %s SUCCESS\n", buildName)
+	} else {
+		fmt.Printf("Delete folo record %s FAILED\n", buildName)
+	}
 }

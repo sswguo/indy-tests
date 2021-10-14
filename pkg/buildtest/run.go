@@ -13,10 +13,26 @@ import (
 	common "github.com/commonjava/indy-tests/pkg/common"
 )
 
-const TMP_DOWNLOAD_DIR = "/tmp/download"
-const TMP_UPLOAD_DIR = "/tmp/upload"
+const (
+	TMP_DOWNLOAD_DIR = "/tmp/download"
+	TMP_UPLOAD_DIR   = "/tmp/upload"
+	BUILD_TEST_      = "build-test-"
+)
+
+var (
+	versionRegexp = regexp.MustCompile(`redhat-([0-9]+)`)
+)
 
 func Run(originalIndy, foloId, replacement, targetIndy, buildType string, processNum int) {
+	origIndy := originalIndy
+	if !strings.HasPrefix(origIndy, "http://") {
+		origIndy = "http://" + origIndy
+	}
+	foloTrackContent := common.GetFoloRecord(origIndy, foloId)
+	DoRun(originalIndy, replacement, targetIndy, buildType, foloTrackContent, processNum)
+}
+
+func DoRun(originalIndy, replacement, targetIndy, buildType string, foloTrackContent common.TrackedContent, processNum int) string {
 	_, validated := common.ValidateTargetIndy(originalIndy)
 	if !validated {
 		os.Exit(1)
@@ -34,12 +50,6 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 		os.Exit(1)
 	}
 
-	origIndy := originalIndy
-	if !strings.HasPrefix(origIndy, "http://") {
-		origIndy = "http://" + origIndy
-	}
-	foloTrackContent := common.GetFoloRecord(origIndy, foloId)
-
 	prepareCacheDirectories()
 
 	downloads := prepareDownloadEntriesByFolo(targetIndy, newBuildName, foloTrackContent)
@@ -48,7 +58,7 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 		return common.DownloadFile(targetArtiURL, fileLoc)
 	}
 	broken := false
-	if downloads != nil && len(downloads) > 0 {
+	if len(downloads) > 0 {
 		fmt.Println("Start handling downloads artifacts.")
 		fmt.Printf("==========================================\n\n")
 		if processNum > 1 {
@@ -80,7 +90,7 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 
 	uploads := prepareUploadEntriesByFolo(originalIndy, targetIndy, newBuildName, foloTrackContent)
 
-	if uploads != nil && len(uploads) > 0 {
+	if len(uploads) > 0 {
 		fmt.Println("Start handling uploads artifacts.")
 		fmt.Printf("==========================================\n\n")
 		if processNum > 1 {
@@ -112,6 +122,8 @@ func Run(originalIndy, foloId, replacement, targetIndy, buildType string, proces
 			fmt.Printf("Warning: folo record sealing failed for %s", newBuildName)
 		}
 	}
+
+	return newBuildName
 }
 
 // For downloads entries, we will get the paths and inject them to the final url of target indy
@@ -135,14 +147,25 @@ func prepareUploadEntriesByFolo(originalIndyURL, targetIndyURL, newBuildId strin
 	targetIndy := normIndyURL(targetIndyURL)
 	result := make(map[string][]string)
 	for _, up := range foloRecord.Uploads {
-		storePath := common.StoreKeyToPath(up.StoreKey)
-		uploadPath := path.Join("api/content", storePath, up.Path)
-		orgiUpUrl := fmt.Sprintf("%s%s", originalIndy, uploadPath)
-		targUpUrl := fmt.Sprintf("%sapi/folo/track/%s/maven/group/%s%s", targetIndy, newBuildId, newBuildId, up.Path)
+		orgiUpUrl, targUpUrl := createUploadUrls(originalIndy, targetIndy, newBuildId, up)
 		result[up.Path] = []string{orgiUpUrl, targUpUrl}
 	}
-
 	return result
+}
+
+func createUploadUrls(originalIndy, targetIndy, newBuildId string, up common.TrackedContentEntry) (string, string) {
+	storePath := common.StoreKeyToPath(up.StoreKey) // original store, e.g, maven/hosted/build-1234
+	uploadPath := path.Join("api/content", storePath, up.Path)
+	orgiUpUrl := fmt.Sprintf("%s%s", originalIndy, uploadPath)                    // original url to retrieve artifact
+	alteredUploadPath := alterUploadPath(up.Path, newBuildId[len(BUILD_TEST_):])  // replace version number
+	toks := strings.Split(storePath, "/")                                         // get package/type, e.g., maven/hosted
+	targetStorePath := path.Join(toks[0], toks[1], newBuildId, alteredUploadPath) // e.g, maven/hosted/build-913413/org/...
+	targUpUrl := fmt.Sprintf("%sapi/folo/track/%s/%s", targetIndy, newBuildId, targetStorePath)
+	return orgiUpUrl, targUpUrl
+}
+
+func alterUploadPath(rawPath, buildNumber string) string {
+	return versionRegexp.ReplaceAllString(rawPath, "redhat-"+buildNumber) // replace with same build number
 }
 
 func normIndyURL(indyURL string) string {
@@ -173,62 +196,12 @@ func prepareCacheDirectories() {
 	}
 }
 
-// Deprecated as folo is the preferred way now.
-func decorateChecksums(downloads []string) []string {
-	downSet := make(map[string]bool)
-	for _, artifact := range downloads {
-		downSet[artifact] = true
-		if strings.HasSuffix(artifact, ".md5") || strings.HasSuffix(artifact, ".sha1") {
-			continue
-		}
-		downSet[artifact+".md5"] = true
-		downSet[artifact+".sha1"] = true
-		// downSet[artifact+".sha256"] = true
-	}
-	finalDownloads := []string{}
-	for artifact := range downSet {
-		finalDownloads = append(finalDownloads, artifact)
-	}
-	return finalDownloads
-}
-
-func replaceHost(artifact, oldIndyHost, targetIndyHost string) string {
-	// First, replace the embedded indy host to the target one
-	repl := oldIndyHost
-	if common.IsEmptyString(repl) {
-		repl = artifact[strings.Index(artifact, "//")+2:]
-		repl = repl[:strings.Index(repl, "/")]
-	}
-	return strings.ReplaceAll(artifact, repl, targetIndyHost)
-}
-
-func replaceBuildName(artifact, buildName string) string {
-	// Second, if use a new build name we should replace the old one with it.
-	final := artifact
-	if !common.IsEmptyString(buildName) {
-		buildPat := regexp.MustCompile(`https{0,1}:\/\/.+\/api\/folo\/track\/(build-\S+?)\/.*`)
-		buildPat.FindAllStringSubmatch(final, 0)
-		matches := buildPat.FindAllStringSubmatch(final, -1)
-		if matches != nil {
-			for i := range matches {
-				get := matches[i][1]
-				if strings.HasPrefix(get, "build-") {
-					final = strings.ReplaceAll(final, get, buildName)
-					break
-				}
-			}
-		}
-	}
-	return final
-}
-
-// generate a random 5 digit  number for a build repo like "build-test-xxxxx"
+// generate a random 5 digit  number for a build repo like "build-test-9xxxxx"
 func generateRandomBuildName() string {
-	buildPrefix := "build-test-"
 	rand.Seed(time.Now().UnixNano())
-	min := 10000
-	max := 99999
-	return fmt.Sprintf(buildPrefix+"%v", rand.Intn(max-min)+min)
+	min := 900000
+	max := 999999
+	return fmt.Sprintf(BUILD_TEST_+"%v", rand.Intn(max-min)+min)
 }
 
 func concurrentRun(numWorkers int, artifacts map[string][]string, job func(originalArtiURL, targetArtiURL string) bool) bool {

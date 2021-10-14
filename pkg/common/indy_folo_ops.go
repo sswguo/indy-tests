@@ -16,6 +16,7 @@
 package common
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 )
@@ -34,6 +35,7 @@ type TrackedContentEntry struct {
 	AccessChannel string  `json:"accessChannel"`
 	Path          string  `json:"path"`
 	OriginUrl     string  `json:"originUrl"`
+	LocalUrl      string  `json:"localUrl"`
 	Effect        string  `json:"effect"`
 	Md5           string  `json:"md5"`
 	Sha256        string  `json:"sha256"`
@@ -55,9 +57,23 @@ func GetFoloRecord(indyURL, foloRecordId string) TrackedContent {
 	return *trackContent
 }
 
+func GetFoloRecordFromFile(fileLoc string) TrackedContent {
+	trackContent := &TrackedContent{}
+	b := ReadByteFromFile(fileLoc)
+	json.Unmarshal(b, trackContent)
+	return *trackContent
+}
+
 func SealFoloRecord(indyURL, foloRecordId string) bool {
 	URL := fmt.Sprintf("%s/api/folo/admin/%s/record", indyURL, foloRecordId)
 	fmt.Printf("Start to seal folo tracking record through: %s\n", URL)
 	_, _, result := HTTPRequest(URL, MethodPost, nil, false, nil, nil, "", false)
+	return result
+}
+
+func DeleteFoloRecord(indyURL, foloRecordId string) bool {
+	URL := fmt.Sprintf("%s/api/folo/admin/%s/record", indyURL, foloRecordId)
+	fmt.Printf("Start to delete folo tracking record through: %s\n", URL)
+	_, _, result := HTTPRequest(URL, MethodDelete, nil, false, nil, nil, "", false)
 	return result
 }
