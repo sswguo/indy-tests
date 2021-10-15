@@ -58,6 +58,7 @@ pipeline {
             mountPath: ${env.TEST_MOUNT_PATH}
         volumes:
           - name: vol-indy-integration-test
+            emptyDir: {}
             #persistentVolumeClaim:
             #  claimName: indy-integration-test
       """
