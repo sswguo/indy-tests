@@ -54,7 +54,7 @@ pipeline {
               cpu: 4000m
           workingDir: ${env.TEST_MOUNT_PATH}
           volumeMounts:
-          - mountPath: ${env.TEST_MOUNT_PATH}
+          - mountPath: "/home/jenkins"
             name: "workspace-volume"
             readOnly: false
           #volumeMounts:
