@@ -53,12 +53,20 @@ pipeline {
               memory: 8Gi
               cpu: 4000m
           workingDir: ${env.TEST_MOUNT_PATH}
+          volumeMounts:
+          - mountPath: ${env.TEST_MOUNT_PATH}
+            name: "workspace-volume"
+            readOnly: false
           #volumeMounts:
           #- name: vol-indy-integration-test
           #  mountPath: ${env.TEST_MOUNT_PATH}
         #volumes:
           #- name: vol-indy-integration-test
           #  emptyDir: {}
+         volumes:
+          - emptyDir:
+              medium: ""
+            name: "workspace-volume"
       """
       //workspaceVolume persistentVolumeClaimWorkspaceVolume(claimName: "indy-integration-test")
     }
