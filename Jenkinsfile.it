@@ -63,7 +63,7 @@ pipeline {
         #volumes:
           #- name: vol-indy-integration-test
           #  emptyDir: {}
-         volumes:
+        volumes:
           - emptyDir:
               medium: ""
             name: "workspace-volume"
