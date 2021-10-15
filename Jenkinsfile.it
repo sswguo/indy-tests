@@ -59,8 +59,6 @@ pipeline {
         volumes:
           - name: vol-indy-integration-test
             emptyDir: {}
-            #persistentVolumeClaim:
-            #  claimName: indy-integration-test
       """
       //workspaceVolume persistentVolumeClaimWorkspaceVolume(claimName: "indy-integration-test")
     }
