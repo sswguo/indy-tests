@@ -52,9 +52,16 @@ pipeline {
             limits:
               memory: 8Gi
               cpu: 4000m
-          workingDir: /home/jenkins
+          workingDir: "/home/jenkins/it"
+          volumeMounts:
+          - name: vol-indy-integration-test
+            mountPath: "/home/jenkins/it"
+            readOnly: false
+        volumes:
+          - name: vol-indy-integration-test
+            persistentVolumeClaim: 
+              claimName: indy-integration-test
       """
-      //workspaceVolume persistentVolumeClaimWorkspaceVolume(claimName: 'indy-integration-test', readOnly: false)
     }
   }
   // TODO let's enable this after the test
