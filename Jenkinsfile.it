@@ -60,8 +60,8 @@ pipeline {
           - name: vol-indy-integration-test
             persistentVolumeClaim:
               claimName: indy-integration-test
+        workspaceVolume persistentVolumeClaimWorkspaceVolume(claimName: 'indy-integration-test', readOnly: false)
       """
-      workspaceVolume persistentVolumeClaimWorkspaceVolume(claimName: 'indy-integration-test', readOnly: false)
     }
   }
   // TODO let's enable this after the test
