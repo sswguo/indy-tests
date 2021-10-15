@@ -58,8 +58,8 @@ pipeline {
             mountPath: ${env.TEST_MOUNT_PATH}
         volumes:
           - name: vol-indy-integration-test
-            persistentVolumeClaim:
-              claimName: indy-integration-test
+            #persistentVolumeClaim:
+            #  claimName: indy-integration-test
       """
       workspaceVolume persistentVolumeClaimWorkspaceVolume(claimName: "indy-integration-test")
     }
