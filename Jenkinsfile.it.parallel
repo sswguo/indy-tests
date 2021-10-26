@@ -59,11 +59,16 @@ pipeline {
   stages {
     stage ('Parallel Stage') {
       parallel {
-        stage('Parallel Integration Test') {
+        stage('Parallel Integration Test Set 1') {
           steps {
             // the below jobs run sequentially one after the other
             build(job: "indy-integration-test")
             build(job: "indy-integration-test")
+            build(job: "indy-integration-test")
+          }
+        }
+        stage('Parallel Integration Test Set 2') {
+          steps {
             build(job: "indy-integration-test")
           }
         }
