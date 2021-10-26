@@ -16,6 +16,49 @@
 def artifact_glob="build/*"
 def build_image="quay.io/factory2/spmm-jenkins-agent-go-centos7:latest"
 
+def builds = readYaml text: """
+- id: id001
+  build:
+    - '12327/builds/102053'
+    - '12327/builds/102048'
+- id: id002
+  build:
+    - '12327/builds/102051'
+    - '12327/builds/102052'
+    - '12327/builds/102050'
+- id: id003
+  build:
+    - '12327/builds/102054'
+    - '12327/builds/102047'
+- id: id004
+  build:
+    - '12327/builds/102049'
+"""
+
+def generate_stages( data ) {
+    data.each { item -> 
+        stage ( "${item.id}" )
+        {
+            def builds = item.build
+            def buildJobs = [:]
+            builds.each { BUILD_ID -> 
+                def buildJob = {
+                    catchError {
+                        build(
+                            job: "indy-integration-test",
+                            parameters: [
+                                string(name:"BUILD_ID", value: "${BUILD_ID}")
+                            ]
+                        )
+                    }
+                }
+                buildJobs.put("${BUILD_ID}", buildJob)
+            }
+            parallel ( buildJobs )
+        }
+    }
+} 
+
 pipeline {
   agent {
     kubernetes {
@@ -57,22 +100,11 @@ pipeline {
     }
   }
   stages {
-    stage ('Parallel Stage') {
-      parallel {
-        stage('Parallel Integration Test Set 1') {
-          steps {
-            // the below jobs run sequentially one after the other
-            build(job: "indy-integration-test")
-            build(job: "indy-integration-test")
-            build(job: "indy-integration-test")
-          }
+    stage ('generate stages')
+    {
+        steps {
+            generate_stages(builds)
         }
-        stage('Parallel Integration Test Set 2') {
-          steps {
-            build(job: "indy-integration-test")
-          }
-        }
-      }
     }
   }
 }
