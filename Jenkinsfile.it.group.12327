@@ -108,7 +108,7 @@ pipeline {
     {
       steps {
         script {
-          builds = readYaml (file: '${JENKINS_HOME}/jobs/<JOB_NAME>/workspace/build-data/build-queue.yaml')
+          builds = readYaml (file: '/${JENKINS_HOME}/jobs/<JOB_NAME>/workspace/build-data/build-queue.yaml')
         }
       }
     }
