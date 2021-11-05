@@ -85,15 +85,25 @@ pipeline {
   stages {
     stage ('init build queue data dir')
     {
-      new File('/tmp/build-queue-data').mkdir()
+      steps {
+        new File('/tmp/build-queue-data').mkdir()
+      }
     }
-    dir ('/tmp/build-queue-data')
+    stage ('clone sources')
     {
-      git url: 'https://github.com/Commonjava/indy-tests.git'
+      steps {
+        dir ('/tmp/build-queue-data')
+        {
+          git url: 'https://github.com/Commonjava/indy-tests.git'
+        }
+      }
     }
+    
     stage ('read queue data')
     {
-      builds = readYaml (file: '/tmp/build-queue-data/build-queue.yaml')
+      steps {
+        builds = readYaml (file: '/tmp/build-queue-data/build-queue.yaml')
+      }
     }
     stage ('generate stages')
     {
