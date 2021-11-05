@@ -94,10 +94,10 @@ pipeline {
     stage ('clone sources')
     {
       steps {
-        dir ('/tmp')
-        {
+        //dir ('/tmp/build-queue-data')
+        //{
           git url: 'https://github.com/Commonjava/indy-tests.git'
-        }
+        //}
       }
     }
     
@@ -105,7 +105,7 @@ pipeline {
     {
       steps {
         script {
-          builds = readYaml (file: '/tmp/build-queue.yaml')
+          builds = readYaml (file: '${JENKINS_HOME}/jobs/<JOB_NAME>/workspace/indy-tests/build-queue.yaml')
         }
       }
     }
