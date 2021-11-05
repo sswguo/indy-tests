@@ -111,7 +111,7 @@ pipeline {
           echo "${env.HOME}"
           echo "${env.JOB_BASE_NAME}"
           echo "${env.JOB_NAME}"
-          builds = readYaml (file: '/home/jenkins/workspace/Commonjava-manual/indy-integration-test-wguo/build-data/build-queue.yaml')
+          builds = readYaml (file: '${env.HOME}/workspace/${env.JOB_NAME}/build-data/build-queue.yaml')
         }
       }
     }
