@@ -108,9 +108,9 @@ pipeline {
     {
       steps {
         script {
-          echo "${env.JENKINS_HOME}"
-          echo "${evn.JOB_BASE_NAME}"
-          echo "${evn.JOB_NAME}"
+          echo "${env.HOME}"
+          echo "${env.JOB_BASE_NAME}"
+          echo "${env.JOB_NAME}"
           builds = readYaml (file: '/home/jenkins/workspace/Commonjava-manual/indy-integration-test-wguo/build-data/build-queue.yaml')
         }
       }
