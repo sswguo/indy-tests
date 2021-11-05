@@ -16,24 +16,7 @@
 def artifact_glob="build/*"
 def build_image="quay.io/factory2/spmm-jenkins-agent-go-centos7:latest"
 
-def builds = readYaml text: """
-- id: id001
-  build:
-    - '12327/builds/102053'
-    - '12327/builds/102048'
-- id: id002
-  build:
-    - '12327/builds/102051'
-    - '12327/builds/102052'
-    - '12327/builds/102050'
-- id: id003
-  build:
-    - '12327/builds/102054'
-    - '12327/builds/102047'
-- id: id004
-  build:
-    - '12327/builds/102049'
-"""
+def builds 
 
 def generate_stages( data ) {
     data.each { item -> 
@@ -100,6 +83,18 @@ pipeline {
     }
   }
   stages {
+    stage ('init build queue data dir')
+    {
+      new File('/tmp/build-queue-data').mkdir()
+    }
+    dir ('/tmp/build-queue-data')
+    {
+      git url: 'https://github.com/Commonjava/indy-tests.git'
+    }
+    stage ('read queue data')
+    {
+      builds = readYaml (file: '/tmp/build-queue-data/build-queue.yaml')
+    }
     stage ('generate stages')
     {
         steps {
