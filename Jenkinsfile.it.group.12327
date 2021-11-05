@@ -86,7 +86,9 @@ pipeline {
     stage ('init build queue data dir')
     {
       steps {
-        new File('/tmp/build-queue-data').mkdir()
+        script {
+          new File('/tmp/build-queue-data').mkdir()
+        }
       }
     }
     stage ('clone sources')
@@ -102,7 +104,9 @@ pipeline {
     stage ('read queue data')
     {
       steps {
-        builds = readYaml (file: '/tmp/build-queue-data/build-queue.yaml')
+        script {
+          builds = readYaml (file: '/tmp/build-queue-data/build-queue.yaml')
+        }
       }
     }
     stage ('generate stages')
