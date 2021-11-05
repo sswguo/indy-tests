@@ -98,7 +98,7 @@ pipeline {
         //{
         //  git url: 'https://github.com/Commonjava/indy-tests.git'
         //}
-        checkout([$class      : 'GitSCM', branches: [[name: 'main']], doGenerateSubmoduleConfigurations: false,
+        checkout([$class      : 'GitSCM', branches: [[name: 'it_parallel']], doGenerateSubmoduleConfigurations: false,
                     extensions  : [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'build-data']], submoduleCfg: [],
                     userRemoteConfigs: [[url: 'https://github.com/Commonjava/indy-tests.git']]])
       }
@@ -108,7 +108,9 @@ pipeline {
     {
       steps {
         script {
-          builds = readYaml (file: '/${JENKINS_HOME}/<JOB_NAME>/build-data/build-queue.yaml')
+          echo '${JENKINS_HOME}'
+          echo '${JOB_NAME}'
+          builds = readYaml (file: '/${JENKINS_HOME}/job/Commonjava-manual/job/${JOB_NAME}/build-data/build-queue.yaml')
         }
       }
     }
