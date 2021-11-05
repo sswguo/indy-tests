@@ -83,18 +83,18 @@ pipeline {
     }
   }
   stages {
-    stage ('init build queue data dir')
-    {
-      steps {
-        script {
-          new File('/tmp/build-queue-data').mkdir()
-        }
-      }
-    }
+    //stage ('init build queue data dir')
+    //{
+    //  steps {
+    //    script {
+    //      new File('/tmp/build-queue-data').mkdir()
+    //    }
+    //  }
+    //}
     stage ('clone sources')
     {
       steps {
-        dir ('/tmp/build-queue-data')
+        dir ('/tmp')
         {
           git url: 'https://github.com/Commonjava/indy-tests.git'
         }
@@ -105,7 +105,7 @@ pipeline {
     {
       steps {
         script {
-          builds = readYaml (file: '/tmp/build-queue-data/build-queue.yaml')
+          builds = readYaml (file: '/tmp/build-queue.yaml')
         }
       }
     }
