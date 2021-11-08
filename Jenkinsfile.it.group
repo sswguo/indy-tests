@@ -16,24 +16,7 @@
 def artifact_glob="build/*"
 def build_image="quay.io/factory2/spmm-jenkins-agent-go-centos7:latest"
 
-def builds = readYaml text: """
-- id: id001
-  build:
-    - '12327/builds/102053'
-    - '12327/builds/102048'
-- id: id002
-  build:
-    - '12327/builds/102051'
-    - '12327/builds/102052'
-    - '12327/builds/102050'
-- id: id003
-  build:
-    - '12327/builds/102054'
-    - '12327/builds/102047'
-- id: id004
-  build:
-    - '12327/builds/102049'
-"""
+def builds 
 
 def generate_stages( data ) {
     data.each { item -> 
@@ -47,7 +30,7 @@ def generate_stages( data ) {
                         build(
                             job: "indy-integration-test",
                             parameters: [
-                                string(name:"BUILD_ID", value: "${BUILD_ID}")
+                                string(name:"BUILD_ID", value: "${params.GROUP_BUILD_ID}/builds/${BUILD_ID}")
                             ]
                         )
                     }
@@ -99,12 +82,37 @@ pipeline {
       """
     }
   }
+
+  parameters {
+    string(name: 'GROUP_BUILD_ID', defaultValue: '', description: 'Group Build ID.')
+    string(name: 'DATASET_REPO_URL', defaultValue: '', description: 'The repo where we store the test dataset.')
+  }
+
   stages {
+    stage ('clone dataset sources')
+    {
+      steps {
+        sh 'git config --global http.sslVerify false'
+        checkout([$class      : 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false,
+                    extensions  : [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'build-data']], submoduleCfg: [],
+                    userRemoteConfigs: [[url: "${params.DATASET_REPO_URL}"]]])
+      }
+    }
+    
+    stage ('read build-queue data')
+    {
+      steps {
+        script {
+          builds = readYaml (file: "/${env.HOME}/workspace/${env.JOB_NAME}/build-data/${params.GROUP_BUILD_ID}/build-queue.yaml")
+          echo builds.toString()
+        }
+      }
+    }
     stage ('generate stages')
     {
-        steps {
-            generate_stages(builds)
-        }
+      steps {
+        generate_stages(builds)
+      }
     }
   }
 }
