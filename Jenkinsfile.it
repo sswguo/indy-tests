@@ -66,12 +66,8 @@ pipeline {
       """
     }
   }
-  // TODO let's enable this after the test
-  //triggers {
-    //cron('@midnight')
-  //}
   options {
-    timeout(time: 360, unit: 'MINUTES')
+    timeout(time: 1, unit: 'HOURS')
   }
   environment {
     PIPELINE_NAMESPACE = readFile('/run/secrets/kubernetes.io/serviceaccount/namespace').trim()
