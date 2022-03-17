@@ -57,27 +57,14 @@ pipeline {
     }
   }
 
-  parameters {
-    string(name: 'GROUP_BUILD_ID', defaultValue: '', description: 'Group Build ID.')
-    string(name: 'DATASET_REPO_URL', defaultValue: '', description: 'The repo where we store the test dataset.')
-  }
-
-  stages {
-    stage ('clone dataset sources')
-    {
-      steps {
-        sh 'git config --global http.sslVerify false'
-        checkout([$class      : 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false,
-                    extensions  : [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'build-data']], submoduleCfg: [],
-                    userRemoteConfigs: [[url: "${params.DATASET_REPO_URL}"]]])
-      }
-    }
-    
+  stages {    
     stage ('show report')
     {
       steps {
-        pipeline = load 'report.groovy'
-        pipeline.functionA()
+        script{
+            def pipeline = load 'report.groovy'
+            pipeline.functionA()
+        }
       }
     }
   }

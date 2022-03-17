@@ -1,13 +1,18 @@
 
 def functionA()
 {
-    projects = Jenkins.instance.getJob('indy-it-JDG-daily').getItems()
+    
+    println(jobName)
+    job = Jenkins.instance.getJob(jobName)
 
-    for( build in projects.getAllJobs())
-    {
+    //projects = hudson.model.Hudson.instance.getJob('indy-it-JDG-daily').getItems()
+
+    //for( build in projects.getAllJobs())
+    //{
     //process build data
-    println(build.getDuration());
-    println(build.getTime());
+    println("All builds: ${job.getBuilds().collect{ it.getNumber()}}");
 
-    }
+    //}
 }
+
+return this
