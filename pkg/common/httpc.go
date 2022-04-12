@@ -368,7 +368,7 @@ func download(targetUrl, storeFileName string, proxyConfig *ProxyConfig) bool {
 		_, err = io.Copy(out, resp.Body)
 		if err != nil {
 			fmt.Printf("Warning: cannot download file due to io error! error is %s\n", err.Error())
-			return false
+			//return false
 		}
 	}
 	return true
