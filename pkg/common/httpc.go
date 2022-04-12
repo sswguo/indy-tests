@@ -365,7 +365,10 @@ func download(targetUrl, storeFileName string, proxyConfig *ProxyConfig) bool {
 		return false
 	} else {
 		defer out.Close()
-		_, err = io.Copy(out, resp.Body)
+
+		bytes, err := ioutil.ReadAll(resp.Body)
+		_, err = out.Write(bytes)
+		
 		if err != nil {
 			fmt.Printf("Warning: cannot download file due to io error! error is %s\n", err.Error())
 			return false
