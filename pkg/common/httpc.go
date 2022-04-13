@@ -368,7 +368,11 @@ func download(targetUrl, storeFileName string, proxyConfig *ProxyConfig) bool {
 		_, err = io.Copy(out, resp.Body)
 		if err != nil {
 			fmt.Printf("Warning: cannot download file due to io error! error is %s\n", err.Error())
-			//return false
+			// TODO it reports this for chunked response, but after investigation, the file can be downloaded
+			// even though this error, let's ignore this for the timebeing
+			if !strings.Contains(err.Error(), "tls: user canceled") {
+				return false
+			}
 		}
 	}
 	return true
