@@ -85,3 +85,41 @@ func IndyHostedTemplate(indyHostedVars *IndyHostedVars) string {
 
 	return buf.String()
 }
+
+
+// IndyRemoteVars ...
+type IndyRemoteVars struct {
+	Name string
+	Type string
+}
+
+// IndyRemoteTemplate ...
+func IndyRemoteTemplate(indyRemoteVars *IndyRemoteVars) string {
+	remoteTemplate := `{
+  "key" : "{{.Type}}:remote:{{.Name}}",
+  "description" : "{{.Name}}",
+  "metadata" : {
+    "changelog" : "init remote {{.Name}}"
+  },
+  "disabled" : false,
+  "packageType" : "{{.Type}}",
+  "name" : "{{.Name}}",
+  "type" : "remote",
+  "url": "https://repo.maven.apache.org/maven2/",
+  "disable_timeout" : 0,
+  "path_style" : "plain",
+  "authoritative_index" : true,
+  "allow_snapshots" : true,
+  "allow_releases" : true
+}`
+
+	t := template.Must(template.New("settings").Parse(remoteTemplate))
+	var buf bytes.Buffer
+	err := t.Execute(&buf, indyRemoteVars)
+	if err != nil {
+		log.Fatal("executing template:", err)
+	}
+
+	return buf.String()
+}
+
