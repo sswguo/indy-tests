@@ -22,5 +22,9 @@ jobs:
           make build
       - name: Format & Tests
         run: |
+          echo "Checking code formatting"
           diff -u <(echo -n) <(go fmt ./...)
+          if [ $retVal > 0 ]; then
+            echo "Code formatting not passed, see above info for details."
+          fi
           make test
