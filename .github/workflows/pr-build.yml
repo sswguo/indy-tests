@@ -20,21 +20,9 @@ jobs:
         run: |
           go version
           make build
-      - name: Check Formatting
+      - name: Check Code Formatting
         run: |
-          ret=$(diff -u <(echo -n) <(go fmt ./...)) 
-          if [[ $ret != "" ]]
-          then
-            echo "Following files are not formatted correctly:"
-            for i in $ret
-            do 
-              if [[ $i == "+pkg/"* ]]
-              then 
-                echo $i
-              fi 
-            done
-            exit 1
-          fi
+          diff -u <(echo -n) <(go fmt ./...)
       - name: Tests
         run: |         
           make test
