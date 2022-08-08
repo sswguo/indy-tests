@@ -4,6 +4,7 @@ GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
+GOFMT=$(GOCMD) fmt
 BUILD_DIR=./build
 # indy build-tests package
 PACKAGE_NAME_BUILD=root
@@ -16,6 +17,10 @@ build:
 # build other commands 
 #    $(GOBUILD) -trimpath -o $(BINARY_NAME_OTHER) -v ./cmd/$(PACKAGE_NAME_OTHER)
 .PHONY: build
+
+format:
+		$(GOFMT) ./...
+.PHONY: format
 
 test: 
 		$(GOTEST) -v ./...
