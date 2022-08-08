@@ -86,7 +86,6 @@ func IndyHostedTemplate(indyHostedVars *IndyHostedVars) string {
 	return buf.String()
 }
 
-
 // IndyRemoteVars ...
 type IndyRemoteVars struct {
 	Name string
@@ -122,4 +121,3 @@ func IndyRemoteTemplate(indyRemoteVars *IndyRemoteVars) string {
 
 	return buf.String()
 }
-
