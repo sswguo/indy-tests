@@ -20,11 +20,21 @@ jobs:
         run: |
           go version
           make build
-      - name: Format & Tests
+      - name: Check Formatting
         run: |
-          echo "Checking code formatting"
-          diff -u <(echo -n) <(go fmt ./...)
-          if [ $retVal > 0 ]; then
-            echo "Code formatting not passed, see above info for details."
+          ret=$(diff -u <(echo -n) <(go fmt ./...)) 
+          if [[ $ret != "" ]]
+          then
+            echo "Following files are not formatted correctly:"
+            for i in $ret
+            do 
+              if [[ $i == "+pkg/"* ]]
+              then 
+                echo $i
+              fi 
+            done
+            exit 1
           fi
+      - name: Tests
+        run: |         
           make test
