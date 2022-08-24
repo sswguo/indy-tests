@@ -1,4 +1,4 @@
-package buildtest
+package event
 
 import (
 	"bytes"
@@ -53,6 +53,7 @@ func IndyGroupTemplate(indyGroupVars *IndyGroupVars) string {
 type IndyHostedVars struct {
 	Name string
 	Type string
+	Disabled bool
 }
 
 // IndyHostedTemplate ...
@@ -63,7 +64,7 @@ func IndyHostedTemplate(indyHostedVars *IndyHostedVars) string {
   "metadata" : {
     "changelog" : "init hosted {{.Name}}"
   },
-  "disabled" : false,
+  "disabled" : {{.Disabled}},
   "snapshotTimeoutSeconds" : 0,
   "readonly" : false,
   "packageType" : "{{.Type}}",
@@ -79,6 +80,42 @@ func IndyHostedTemplate(indyHostedVars *IndyHostedVars) string {
 	t := template.Must(template.New("settings").Parse(hostedTemplate))
 	var buf bytes.Buffer
 	err := t.Execute(&buf, indyHostedVars)
+	if err != nil {
+		log.Fatal("executing template:", err)
+	}
+
+	return buf.String()
+}
+
+// IndyRemoteVars ...
+type IndyRemoteVars struct {
+	Name string
+	Type string
+}
+
+// IndyRemoteTemplate ...
+func IndyRemoteTemplate(indyRemoteVars *IndyRemoteVars) string {
+	remoteTemplate := `{
+  "key" : "{{.Type}}:remote:{{.Name}}",
+  "description" : "{{.Name}}",
+  "metadata" : {
+    "changelog" : "init remote {{.Name}}"
+  },
+  "disabled" : false,
+  "packageType" : "{{.Type}}",
+  "name" : "{{.Name}}",
+  "type" : "remote",
+  "url": "https://repo.maven.apache.org/maven2/",
+  "disable_timeout" : 0,
+  "path_style" : "plain",
+  "authoritative_index" : true,
+  "allow_snapshots" : true,
+  "allow_releases" : true
+}`
+
+	t := template.Must(template.New("settings").Parse(remoteTemplate))
+	var buf bytes.Buffer
+	err := t.Execute(&buf, indyRemoteVars)
 	if err != nil {
 		log.Fatal("executing template:", err)
 	}
