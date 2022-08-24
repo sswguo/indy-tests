@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	TMP_UPLOAD_DIR   = "/tmp/upload"
+	TMP_UPLOAD_DIR = "/tmp/upload"
 )
 
 func Run(originalIndy, foloId, targetIndy, packageType string, processNum int) {
@@ -34,10 +34,10 @@ func DoRun(originalIndy, targetIndy, packageType, newBuildName string, foloTrack
 
 	// Prepare the indy repos for the whole testing
 	buildMeta := decideMeta(packageType)
-    prepareIndyRepos("http://"+targetIndyHost, newBuildName, *buildMeta, additionalRepos, dryRun)
+	prepareIndyRepos("http://"+targetIndyHost, newBuildName, *buildMeta, additionalRepos, dryRun)
 
 	trackingId := foloTrackContent.TrackingKey.Id
-    uploadDir := prepareUploadDirectory(trackingId, clearCache)
+	uploadDir := prepareUploadDirectory(trackingId, clearCache)
 
 	uploadFunc := func(md5str, originalArtiURL, targetArtiURL string) bool {
 		if dryRun {
@@ -45,8 +45,8 @@ func DoRun(originalIndy, targetIndy, packageType, newBuildName string, foloTrack
 			return true
 		}
 
-        cacheFile := path.Join(uploadDir, path.Base(originalArtiURL))
-        downloaded := common.DownloadUploadFileForCache(originalArtiURL, cacheFile)
+		cacheFile := path.Join(uploadDir, path.Base(originalArtiURL))
+		downloaded := common.DownloadUploadFileForCache(originalArtiURL, cacheFile)
 		if downloaded {
 			common.Md5Check(cacheFile, md5str)
 			return common.UploadFile(targetArtiURL, cacheFile)
@@ -89,7 +89,7 @@ func DoRun(originalIndy, targetIndy, packageType, newBuildName string, foloTrack
 		}
 	}
 
-    updateIndyReposEnablement("http://"+targetIndyHost, packageType, newBuildName)
+	updateIndyReposEnablement("http://"+targetIndyHost, packageType, newBuildName)
 	defer DeleteIndyRepos("http://"+targetIndyHost, packageType, newBuildName, uploads)
 
 	return true

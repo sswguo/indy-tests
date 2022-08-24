@@ -21,8 +21,8 @@ import (
 	"os"
 	"strconv"
 
-	event "github.com/commonjava/indy-tests/pkg/event"
 	"github.com/commonjava/indy-tests/pkg/common"
+	event "github.com/commonjava/indy-tests/pkg/event"
 
 	"github.com/spf13/cobra"
 )

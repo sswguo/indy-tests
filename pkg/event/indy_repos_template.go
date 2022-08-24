@@ -51,8 +51,8 @@ func IndyGroupTemplate(indyGroupVars *IndyGroupVars) string {
 
 // IndyHostedVars ...
 type IndyHostedVars struct {
-	Name string
-	Type string
+	Name     string
+	Type     string
 	Disabled bool
 }
 

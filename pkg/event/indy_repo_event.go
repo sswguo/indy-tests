@@ -11,17 +11,17 @@ import (
 )
 
 const (
-	DEFAULT_SHARED_GROUP   = "builds-untested+shared-imports+public"
-	DEFAULT_MVN_CENTRAL    = "central"
-	DEFAULT_NPM_CENTRAL    = "npmjs"
-	TYPE_MVN               = "maven"
-	TYPE_NPM               = "npm"
-	MISSING_CONTENT_PATH   = "org/missing/1.0/missing-1.0.pom"
-	ACCESSIBLE_REMOTE_PATH = "org/apache/apache/2/apache-2.pom"
-	GOING_MERGED_HOSTED_PATH = "org/apache/apache/666/apache-666.pom"
+	DEFAULT_SHARED_GROUP       = "builds-untested+shared-imports+public"
+	DEFAULT_MVN_CENTRAL        = "central"
+	DEFAULT_NPM_CENTRAL        = "npmjs"
+	TYPE_MVN                   = "maven"
+	TYPE_NPM                   = "npm"
+	MISSING_CONTENT_PATH       = "org/missing/1.0/missing-1.0.pom"
+	ACCESSIBLE_REMOTE_PATH     = "org/apache/apache/2/apache-2.pom"
+	GOING_MERGED_HOSTED_PATH   = "org/apache/apache/666/apache-666.pom"
 	MERGED_MAVEN_METADATA_PATH = "org/apache/apache/maven-metadata.xml"
-	REMOTE_VERSION_TAG = "<version>2</version>"
-	LATEST_HOSTED_VERSION_TAG = "<latest>666</latest>"
+	REMOTE_VERSION_TAG         = "<version>2</version>"
+	LATEST_HOSTED_VERSION_TAG  = "<latest>666</latest>"
 )
 
 type BuildMetadata struct {
@@ -52,16 +52,16 @@ func prepareIndyRepos(indyURL, buildName string, buildMeta BuildMetadata, additi
 		fmt.Printf("Dry run prepareIndyRepos\n")
 		return
 	}
-    prepareIndyHosted(indyURL, buildMeta.buildType, buildName, false)
-    prepareIndyRemote(indyURL, buildMeta.buildType, buildName)
-    prepareIndyGroup(indyURL, buildName, buildMeta, additionalRepos)
-    prepareIndyHostedUploadContent(indyURL, buildMeta.buildType, buildName)
+	prepareIndyHosted(indyURL, buildMeta.buildType, buildName, false)
+	prepareIndyRemote(indyURL, buildMeta.buildType, buildName)
+	prepareIndyGroup(indyURL, buildName, buildMeta, additionalRepos)
+	prepareIndyHostedUploadContent(indyURL, buildMeta.buildType, buildName)
 }
 
 func prepareIndyHosted(indyURL, buildType, buildName string, disabled bool) {
 	hostedVars := IndyHostedVars{
-		Name: buildName,
-		Type: buildType,
+		Name:     buildName,
+		Type:     buildType,
 		Disabled: disabled,
 	}
 	URL := fmt.Sprintf("%s/api/admin/stores/%s/hosted/%s", indyURL, buildType, buildName)
@@ -71,21 +71,21 @@ func prepareIndyHosted(indyURL, buildType, buildName string, disabled bool) {
 	result := putRequest(URL, strings.NewReader(hosted))
 	if !result {
 		fmt.Printf("Error: Failed to create/update hosted repo %s, disabled: %v.\n\n", buildName, disabled)
-        os.Exit(1)
+		os.Exit(1)
 	}
-    fmt.Printf("Create hosted repo %s successfully, disabled: %v\n", buildName, disabled)
+	fmt.Printf("Create hosted repo %s successfully, disabled: %v\n", buildName, disabled)
 }
 
 // Prepare the content to be merged
 func prepareIndyHostedUploadContent(indyURL, buildType, buildName string) {
 	URL := fmt.Sprintf("%s/api/content/%s/hosted/%s/%s", indyURL, buildType, buildName, GOING_MERGED_HOSTED_PATH)
 	fmt.Printf("Upload going merged content to hosted repo, path: %s\n", URL)
-    result := putRequest(URL, strings.NewReader(""))
-    if !result {
-        fmt.Printf("Error: Failed to upload content to hosted repo %s.\n\n", buildName)
-        os.Exit(1)
-    }
-    fmt.Printf("Upload content to hosted repo %s successfully\n", buildName)
+	result := putRequest(URL, strings.NewReader(""))
+	if !result {
+		fmt.Printf("Error: Failed to upload content to hosted repo %s.\n\n", buildName)
+		os.Exit(1)
+	}
+	fmt.Printf("Upload content to hosted repo %s successfully\n", buildName)
 }
 
 func prepareIndyRemote(indyURL, buildType, buildName string) {
@@ -103,20 +103,20 @@ func prepareIndyRemote(indyURL, buildType, buildName string) {
 	result := putRequest(URL, strings.NewReader(remote))
 	if !result {
 		fmt.Printf("Error: Failed to create remote repo %s.\n\n", buildName)
-        os.Exit(1)
+		os.Exit(1)
 	}
 	fmt.Printf("Create remote repo %s successfully\n", buildName)
 
-    // Verify the remote content path after repo creation
-    remoteContentURL := fmt.Sprintf("%s/api/content/%s/remote/%s/%s", indyURL, buildType, buildName, ACCESSIBLE_REMOTE_PATH)
-    _, _, contentResult := getRequest(remoteContentURL)
-    if !contentResult {
-        fmt.Printf("Error: Failed to get content %s in remote %s.\n\n", remoteContentURL, buildName)
-        os.Exit(1)
-    }
-    fmt.Printf("Get remote content %s successfully\n", remoteContentURL)
+	// Verify the remote content path after repo creation
+	remoteContentURL := fmt.Sprintf("%s/api/content/%s/remote/%s/%s", indyURL, buildType, buildName, ACCESSIBLE_REMOTE_PATH)
+	_, _, contentResult := getRequest(remoteContentURL)
+	if !contentResult {
+		fmt.Printf("Error: Failed to get content %s in remote %s.\n\n", remoteContentURL, buildName)
+		os.Exit(1)
+	}
+	fmt.Printf("Get remote content %s successfully\n", remoteContentURL)
 	fmt.Println("==========================================")
-	fmt.Println("Finish remote repo creation validation.\n\n")
+	fmt.Printf("Finish remote repo creation validation.\n\n")
 }
 
 func prepareIndyGroup(indyURL, buildName string, buildMeta BuildMetadata, additionalRepos []string) {
@@ -135,7 +135,7 @@ func prepareIndyGroup(indyURL, buildName string, buildMeta BuildMetadata, additi
 	created := createOrUpdateGroupRepo(URL, buildName, buildMeta, additionalRepos, constituents)
 	if !created {
 		fmt.Printf("Error: Failed to create group repo %s.\n\n", buildName)
-        os.Exit(1)
+		os.Exit(1)
 	}
 	fmt.Printf("Create group repo %s successfully\n", buildName)
 
@@ -144,33 +144,33 @@ func prepareIndyGroup(indyURL, buildName string, buildMeta BuildMetadata, additi
 	updated := createOrUpdateGroupRepo(URL, buildName, buildMeta, additionalRepos, constituents)
 	if !updated {
 		fmt.Printf("Error: Failed to update group repo %s.\n\n", buildName)
-        os.Exit(1)
+		os.Exit(1)
 	}
 	fmt.Printf("Update group repo %s successfully\n", buildName)
 
-    // Verify the merged path and metadata after remote constituent update
-    grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, buildName, ACCESSIBLE_REMOTE_PATH)
-    _, _, result := getRequest(grpContentURL)
-    if !result {
-        fmt.Printf("Error: Failed to get merged path %s in group %s.", grpContentURL, buildName)
-        os.Exit(1)
-    }
-    fmt.Printf("Get affected group merged path %s successfully\n", grpContentURL)
+	// Verify the merged path and metadata after remote constituent update
+	grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, buildName, ACCESSIBLE_REMOTE_PATH)
+	_, _, result := getRequest(grpContentURL)
+	if !result {
+		fmt.Printf("Error: Failed to get merged path %s in group %s.", grpContentURL, buildName)
+		os.Exit(1)
+	}
+	fmt.Printf("Get affected group merged path %s successfully\n", grpContentURL)
 
-    grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, buildName, MERGED_MAVEN_METADATA_PATH)
-    metadata, _, mergedResult := getRequest(grpMetadataURL)
-    if !mergedResult {
-        fmt.Printf("Error: Failed to get group metadata, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
-    }
-    index := strings.Index(metadata, REMOTE_VERSION_TAG)
-    if index < 0 {
-        fmt.Printf("Error: Failed to get correct merged metadata content, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
-    }
-    fmt.Printf("Get correct merged metadata content successfully, path: %s\n", grpMetadataURL)
+	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, buildName, MERGED_MAVEN_METADATA_PATH)
+	metadata, _, mergedResult := getRequest(grpMetadataURL)
+	if !mergedResult {
+		fmt.Printf("Error: Failed to get group metadata, path: %s.\n\n", grpMetadataURL)
+		os.Exit(1)
+	}
+	index := strings.Index(metadata, REMOTE_VERSION_TAG)
+	if index < 0 {
+		fmt.Printf("Error: Failed to get correct merged metadata content, path: %s.\n\n", grpMetadataURL)
+		os.Exit(1)
+	}
+	fmt.Printf("Get correct merged metadata content successfully, path: %s\n", grpMetadataURL)
 	fmt.Println("==========================================")
-	fmt.Println("Finish group repo creation validation.\n\n")
+	fmt.Printf("Finish group repo creation validation.\n\n")
 }
 
 func createOrUpdateGroupRepo(URL, buildName string, buildMeta BuildMetadata, additionalRepos, childRepos []string) bool {
@@ -214,7 +214,7 @@ func delAllowed(buildName string) bool {
 func deleteIndyHosted(indyURL, buildType, repoName string, uploads map[string][]string) {
 	fmt.Println("Start hosted repo cleanup.")
 	fmt.Printf("==========================================\n\n")
-    storePath := fmt.Sprintf("%s/%s/%s", buildType, "hosted", repoName)
+	storePath := fmt.Sprintf("%s/%s/%s", buildType, "hosted", repoName)
 	hostedRepo := fmt.Sprintf("%s/api/admin/stores/%s", indyURL, storePath)
 	_, _, result := getRequest(hostedRepo)
 	if !result {
@@ -222,40 +222,40 @@ func deleteIndyHosted(indyURL, buildType, repoName string, uploads map[string][]
 		os.Exit(1)
 	}
 
-    // Verify the contents, merged paths and metadata before deleting hosted repo
-    for _, upload := range uploads {
-        targetPath := strings.Split(upload[2], storePath)[1]
-        contentURL := fmt.Sprintf("%s/api/content/%s%s", indyURL, storePath, targetPath)
-        _, _, result := getRequest(contentURL)
-        if !result {
-            fmt.Printf("Error: Failed to get hosted content %s.\n\n", contentURL)
-            os.Exit(1)
-            break
-        }
-        grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s%s", indyURL, buildType, repoName, targetPath)
-        _, _, result = getRequest(grpContentURL)
-        if !result {
-            fmt.Printf("Error: Failed to get merged path %s in group %s.\n\n", grpContentURL, repoName)
-            os.Exit(1)
-            break
-        }
-    }
+	// Verify the contents, merged paths and metadata before deleting hosted repo
+	for _, upload := range uploads {
+		targetPath := strings.Split(upload[2], storePath)[1]
+		contentURL := fmt.Sprintf("%s/api/content/%s%s", indyURL, storePath, targetPath)
+		_, _, result := getRequest(contentURL)
+		if !result {
+			fmt.Printf("Error: Failed to get hosted content %s.\n\n", contentURL)
+			os.Exit(1)
+			break
+		}
+		grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s%s", indyURL, buildType, repoName, targetPath)
+		_, _, result = getRequest(grpContentURL)
+		if !result {
+			fmt.Printf("Error: Failed to get merged path %s in group %s.\n\n", grpContentURL, repoName)
+			os.Exit(1)
+			break
+		}
+	}
 	fmt.Printf("Get all hosted contents and affected group merged paths successfully\n")
 
-    grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
-    metadata, _, mergedResult := getRequest(grpMetadataURL)
-    if !mergedResult {
-        fmt.Printf("Error: Failed to get group metadata, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
-    }
-    index := strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
-    if index < 0 {
-        fmt.Printf("Error: Failed to get correct merged metadata content, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
-    }
-    fmt.Printf("Get correct merged metadata content successfully, path: %s\n", grpMetadataURL)
+	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
+	metadata, _, mergedResult := getRequest(grpMetadataURL)
+	if !mergedResult {
+		fmt.Printf("Error: Failed to get group metadata, path: %s.\n\n", grpMetadataURL)
+		os.Exit(1)
+	}
+	index := strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
+	if index < 0 {
+		fmt.Printf("Error: Failed to get correct merged metadata content, path: %s.\n\n", grpMetadataURL)
+		os.Exit(1)
+	}
+	fmt.Printf("Get correct merged metadata content successfully, path: %s\n", grpMetadataURL)
 
-    // Delete hosted repo
+	// Delete hosted repo
 	deleteURL := fmt.Sprintf("%s/api/admin/stores/%s/hosted/%s?deleteContent=true", indyURL, buildType, repoName)
 	fmt.Printf("Start deleting hosted repo %s\n", repoName)
 	result = delRequest(deleteURL)
@@ -263,8 +263,8 @@ func deleteIndyHosted(indyURL, buildType, repoName string, uploads map[string][]
 		fmt.Printf("Delete hosted repo %s successfully\n", repoName)
 	}
 
-    // Recreate hosted repo
-    prepareIndyHosted(indyURL, buildType, repoName, false)
+	// Recreate hosted repo
+	prepareIndyHosted(indyURL, buildType, repoName, false)
 
 	_, _, result = getRequest(hostedRepo)
 	if !result {
@@ -272,20 +272,20 @@ func deleteIndyHosted(indyURL, buildType, repoName string, uploads map[string][]
 		os.Exit(1)
 	}
 
-    // Verify the contents after deleting
-    for _, upload := range uploads {
-        targetPath := strings.Split(upload[2], storePath)[1]
-        contentURL := fmt.Sprintf("%s/api/content/%s%s", indyURL, storePath, targetPath)
-        _, _, result := getRequest(contentURL)
-        if result {
-            fmt.Printf("Error: Content %s is still existed after repo %s is removed.\n\n", contentURL, repoName)
-            os.Exit(1)
-            break
-        }
-    }
+	// Verify the contents after deleting
+	for _, upload := range uploads {
+		targetPath := strings.Split(upload[2], storePath)[1]
+		contentURL := fmt.Sprintf("%s/api/content/%s%s", indyURL, storePath, targetPath)
+		_, _, result := getRequest(contentURL)
+		if result {
+			fmt.Printf("Error: Content %s is still existed after repo %s is removed.\n\n", contentURL, repoName)
+			os.Exit(1)
+			break
+		}
+	}
 	fmt.Printf("Remove all hosted contents successfully\n")
 
-    // Remove hosted repo
+	// Remove hosted repo
 	fmt.Printf("Start deleting hosted repo %s\n", repoName)
 	result = delRequest(deleteURL)
 	if result {
@@ -295,7 +295,7 @@ func deleteIndyHosted(indyURL, buildType, repoName string, uploads map[string][]
 	// Verify affected group cleanup
 	verifyHostedAffectedGroupCleanup(indyURL, buildType, repoName, uploads)
 	fmt.Println("==========================================")
-	fmt.Println("Finish hosted repo cleanup.\n\n")
+	fmt.Printf("Finish hosted repo cleanup.\n\n")
 }
 
 //Verify cleanup for the remote repo deleting
@@ -309,21 +309,21 @@ func deleteIndyRemote(indyURL, buildType, repoName string) {
 		os.Exit(1)
 	}
 
-    // Verify NFC creation
+	// Verify NFC creation
 	remoteMissingURL := fmt.Sprintf("%s/api/content/%s/remote/%s/%s", indyURL, buildType, repoName, MISSING_CONTENT_PATH)
 	_, missingCode, _ := getRequest(remoteMissingURL)
 	nfcVerified := false
 	if missingCode == 404 {
 		nfcVerified = true
-        isCached := isNFCCached(indyURL, buildType, "remote", repoName)
-        if !isCached {
-            fmt.Printf("Error: Failed to cache NFC for remote repo %s.\n\n", repoName)
-            os.Exit(1)
-        }
-        fmt.Printf("Remote repo %s NFC caches successfully\n", repoName)
+		isCached := isNFCCached(indyURL, buildType, "remote", repoName)
+		if !isCached {
+			fmt.Printf("Error: Failed to cache NFC for remote repo %s.\n\n", repoName)
+			os.Exit(1)
+		}
+		fmt.Printf("Remote repo %s NFC caches successfully\n", repoName)
 	}
 
-    // Delete remote repo
+	// Delete remote repo
 	URL := fmt.Sprintf("%s/api/admin/stores/%s/remote/%s?deleteContent=true", indyURL, buildType, repoName)
 	fmt.Printf("Start deleting remote repo %s\n", repoName)
 	result = delRequest(URL)
@@ -331,20 +331,20 @@ func deleteIndyRemote(indyURL, buildType, repoName string) {
 		fmt.Printf("Delete remote repo %s successfully\n", repoName)
 	}
 
-    // Verify NFC cleanup
-    if nfcVerified {
-        isCached := isNFCCached(indyURL, buildType, "remote", repoName)
-        if isCached {
-            fmt.Printf("Error: Failed to remove NFC cache for remote repo %s.\n\n", repoName)
-            os.Exit(1)
-        }
-        fmt.Printf("Remove NFC for remote repo %s successfully\n", repoName)
-    }
+	// Verify NFC cleanup
+	if nfcVerified {
+		isCached := isNFCCached(indyURL, buildType, "remote", repoName)
+		if isCached {
+			fmt.Printf("Error: Failed to remove NFC cache for remote repo %s.\n\n", repoName)
+			os.Exit(1)
+		}
+		fmt.Printf("Remove NFC for remote repo %s successfully\n", repoName)
+	}
 
 	// Verify affected group cleanup
 	verifyRemoteAffectedGroupCleanup(indyURL, buildType, repoName)
 	fmt.Println("==========================================")
-	fmt.Println("Finish remote repo cleanup.\n\n")
+	fmt.Printf("Finish remote repo cleanup.\n\n")
 }
 
 //Verify cleanup for the group repo deleting
@@ -358,67 +358,67 @@ func deleteIndyGroup(indyURL, buildType, repoName string) {
 }
 
 func verifyHostedAffectedGroupCleanup(indyURL, buildType, repoName string, uploads map[string][]string) {
-    // Verify constituent is removed from the affected group
-    verifyGroupConstituents(indyURL, buildType, "hosted", repoName)
+	// Verify constituent is removed from the affected group
+	verifyGroupConstituents(indyURL, buildType, "hosted", repoName)
 
-    // Verify the merged paths and metadata are removed from the affected group
-    for _, upload := range uploads {
-        childStorePath := fmt.Sprintf("%s/%s/%s", buildType, "hosted", repoName)
-        targetPath := strings.Split(upload[2], childStorePath)[1]
-        grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s%s", indyURL, buildType, repoName, targetPath)
-        _, _, result := getRequest(grpContentURL)
-        if result {
-            fmt.Printf("Error: Content %s is still existed in group %s.\n\n", grpContentURL, repoName)
-            os.Exit(1)
-            break
-        }
-    }
+	// Verify the merged paths and metadata are removed from the affected group
+	for _, upload := range uploads {
+		childStorePath := fmt.Sprintf("%s/%s/%s", buildType, "hosted", repoName)
+		targetPath := strings.Split(upload[2], childStorePath)[1]
+		grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s%s", indyURL, buildType, repoName, targetPath)
+		_, _, result := getRequest(grpContentURL)
+		if result {
+			fmt.Printf("Error: Content %s is still existed in group %s.\n\n", grpContentURL, repoName)
+			os.Exit(1)
+			break
+		}
+	}
 	fmt.Printf("Remove all hosted contents from the affected group successfully\n")
 
-    grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
-    metadata, _, mergedResult := getRequest(grpMetadataURL)
-    if !mergedResult {
-        fmt.Printf("Error: Failed to get group metadata, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
-    }
-    index := strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
-    if index >= 0 {
+	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
+	metadata, _, mergedResult := getRequest(grpMetadataURL)
+	if !mergedResult {
+		fmt.Printf("Error: Failed to get group metadata, path: %s.\n\n", grpMetadataURL)
+		os.Exit(1)
+	}
+	index := strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
+	if index >= 0 {
 		fmt.Printf("Error: Failed to remove version from the merged metadata content, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
+		os.Exit(1)
 	}
 	fmt.Printf("Remove version from the merged metadata content successfully, path: %s\n", grpMetadataURL)
 }
 
 func verifyRemoteAffectedGroupCleanup(indyURL, buildType, repoName string) {
-    // Verify constituent is removed from the affected group
-    verifyGroupConstituents(indyURL, buildType, "remote", repoName)
+	// Verify constituent is removed from the affected group
+	verifyGroupConstituents(indyURL, buildType, "remote", repoName)
 
-    // Verify the merged path and metadata is removed from the affected group
-    grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, ACCESSIBLE_REMOTE_PATH)
-    _, _, result := getRequest(grpContentURL)
-    if result {
-        fmt.Printf("Error: Content %s is still existed in group %s.\n\n", grpContentURL, repoName)
-        os.Exit(1)
-    }
+	// Verify the merged path and metadata is removed from the affected group
+	grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, ACCESSIBLE_REMOTE_PATH)
+	_, _, result := getRequest(grpContentURL)
+	if result {
+		fmt.Printf("Error: Content %s is still existed in group %s.\n\n", grpContentURL, repoName)
+		os.Exit(1)
+	}
 	fmt.Printf("Remove remote content from the affected group successfully\n")
 
-    // maven-metadata.xml will be removed entirely after hosted and remote are both deleted
-    grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
-    _, _, mergedResult := getRequest(grpMetadataURL)
-    if mergedResult {
-        fmt.Printf("Error: Failed to remove metadata file entirely from group, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
-    }
+	// maven-metadata.xml will be removed entirely after hosted and remote are both deleted
+	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
+	_, _, mergedResult := getRequest(grpMetadataURL)
+	if mergedResult {
+		fmt.Printf("Error: Failed to remove metadata file entirely from group, path: %s.\n\n", grpMetadataURL)
+		os.Exit(1)
+	}
 	fmt.Printf("Remove metadata file entirely from group successfully, path: %s\n", grpMetadataURL)
 }
 
 func verifyGroupConstituents(indyURL, buildType, storeType, repoName string) {
 	groupURL := fmt.Sprintf("%s/api/admin/stores/%s/group/%s", indyURL, buildType, repoName)
 	groupBody, _, result := getRequest(groupURL)
-    if !result {
+	if !result {
 		fmt.Printf("Error: Failed to get group repo %s.\n\n", repoName)
-        os.Exit(1)
-    }
+		os.Exit(1)
+	}
 
 	var group map[string]interface{}
 	err := json.Unmarshal([]byte(groupBody), &group)
@@ -430,7 +430,7 @@ func verifyGroupConstituents(indyURL, buildType, storeType, repoName string) {
 	repoKey := strings.Join([]string{buildType, storeType, repoName}, ":")
 	if common.Contains(constituents, repoKey) {
 		fmt.Printf("Error: Failed to remove %s repo %s from group repo %s.\n\n", storeType, repoName, repoName)
-        os.Exit(1)
+		os.Exit(1)
 	}
 	fmt.Printf("%s repo %s is removed from Group repo %s\n", storeType, repoName, repoName)
 }
@@ -439,12 +439,12 @@ func isNFCCached(indyURL, buildType, storeType, repoName string) bool {
 	nfcURL := fmt.Sprintf("%s/api/nfc/%s/%s/%s", indyURL, buildType, storeType, repoName)
 	nfcContent, _, result := getRequest(nfcURL)
 	if !result {
-        fmt.Printf("Failed to get NFC for store key %s:%s:%s.\n", buildType, storeType, repoName)
-        return false
+		fmt.Printf("Failed to get NFC for store key %s:%s:%s.\n", buildType, storeType, repoName)
+		return false
 	}
 	index := strings.Index(nfcContent, MISSING_CONTENT_PATH)
 	if index < 0 {
-	    fmt.Printf("Failed to find missing content in store %s:%s:%s NFC caches.\n", buildType, storeType, repoName)
+		fmt.Printf("Failed to find missing content in store %s:%s:%s NFC caches.\n", buildType, storeType, repoName)
 		return false
 	}
 	return true
@@ -454,67 +454,67 @@ func updateIndyReposEnablement(indyURL, packageType, buildName string) {
 	fmt.Println("Start repo enablement/disablement cleanup.")
 	fmt.Printf("==========================================\n\n")
 
-    // Verify the merged path and metadata
-    grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, packageType, buildName, GOING_MERGED_HOSTED_PATH)
-    _, _, result := getRequest(grpContentURL)
-    if !result {
+	// Verify the merged path and metadata
+	grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, packageType, buildName, GOING_MERGED_HOSTED_PATH)
+	_, _, result := getRequest(grpContentURL)
+	if !result {
 		fmt.Printf("Error: Failed to get group content, path: %s.\n\n", grpContentURL)
-        os.Exit(1)
-    }
-    fmt.Printf("Get group content successfully, path: %s\n", grpContentURL)
+		os.Exit(1)
+	}
+	fmt.Printf("Get group content successfully, path: %s\n", grpContentURL)
 
-    grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, packageType, buildName, MERGED_MAVEN_METADATA_PATH)
-    metadata, _, result := getRequest(grpMetadataURL)
-    if !result {
+	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, packageType, buildName, MERGED_MAVEN_METADATA_PATH)
+	metadata, _, result := getRequest(grpMetadataURL)
+	if !result {
 		fmt.Printf("Error: Failed to get group metadata, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
-    }
-    index := strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
-    if index < 0 {
+		os.Exit(1)
+	}
+	index := strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
+	if index < 0 {
 		fmt.Printf("Error: Failed to get correct merged metadata content, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
+		os.Exit(1)
 	}
 	fmt.Printf("Get correct merged metadata content successfully, path: %s\n", grpMetadataURL)
 
-    // Disable the hosted repo
-    prepareIndyHosted(indyURL, packageType, buildName, true)
+	// Disable the hosted repo
+	prepareIndyHosted(indyURL, packageType, buildName, true)
 
-    // Verify the merged path and metadata after hosted disabled
-    _, _, result = getRequest(grpContentURL)
-    if result {
+	// Verify the merged path and metadata after hosted disabled
+	_, _, result = getRequest(grpContentURL)
+	if result {
 		fmt.Printf("Error: Failed to remove content from the merged group, path: %s.\n\n", grpContentURL)
-        os.Exit(1)
-    }
-    fmt.Printf("Remove content from the merged group successfully, path: %s\n", grpContentURL)
+		os.Exit(1)
+	}
+	fmt.Printf("Remove content from the merged group successfully, path: %s\n", grpContentURL)
 
-    metadata, _, _ = getRequest(grpMetadataURL)
-    index = strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
-    if index >= 0 {
+	metadata, _, _ = getRequest(grpMetadataURL)
+	index = strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
+	if index >= 0 {
 		fmt.Printf("Error: Failed to remove version from the merged metadata content, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
+		os.Exit(1)
 	}
 	fmt.Printf("Remove version from the merged metadata content successfully, path: %s\n", grpMetadataURL)
 
-    // Enable the hosted repo
-    prepareIndyHosted(indyURL, packageType, buildName, false)
+	// Enable the hosted repo
+	prepareIndyHosted(indyURL, packageType, buildName, false)
 
-    // Verify the merged path and metadata after hosted enabled
-    _, _, result = getRequest(grpContentURL)
-    if !result {
+	// Verify the merged path and metadata after hosted enabled
+	_, _, result = getRequest(grpContentURL)
+	if !result {
 		fmt.Printf("Error: Failed to merge content into group, path: %s.\n\n", grpContentURL)
-        os.Exit(1)
-    }
-    fmt.Printf("Merge content into group successfully, path: %s\n", grpContentURL)
+		os.Exit(1)
+	}
+	fmt.Printf("Merge content into group successfully, path: %s\n", grpContentURL)
 
-    metadata, _, _ = getRequest(grpMetadataURL)
-    index = strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
-    if index < 0 {
+	metadata, _, _ = getRequest(grpMetadataURL)
+	index = strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
+	if index < 0 {
 		fmt.Printf("Error: Failed to merge version into metadata content, path: %s.\n\n", grpMetadataURL)
-        os.Exit(1)
+		os.Exit(1)
 	}
 	fmt.Printf("Merge version into metadata content successfully, path: %s\n", grpMetadataURL)
 	fmt.Println("==========================================")
-	fmt.Println("Finish repo enablement/disablement cleanup.\n\n")
+	fmt.Printf("Finish repo enablement/disablement cleanup.\n\n")
 }
 
 func getRequest(url string) (string, int, bool) {

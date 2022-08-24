@@ -7,9 +7,9 @@ import (
 	"github.com/commonjava/indy-tests/cmd/buildtest"
 	"github.com/commonjava/indy-tests/cmd/dataset"
 	"github.com/commonjava/indy-tests/cmd/datest"
+	"github.com/commonjava/indy-tests/cmd/event"
 	"github.com/commonjava/indy-tests/cmd/integrationtest"
 	"github.com/commonjava/indy-tests/cmd/promotetest"
-	"github.com/commonjava/indy-tests/cmd/event"
 	"github.com/spf13/cobra"
 )
 
