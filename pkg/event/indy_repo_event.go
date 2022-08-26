@@ -519,20 +519,24 @@ func updateIndyReposEnablement(indyURL, packageType, buildName string) {
 
 func getRequest(url string) (string, int, bool) {
 	content, code, succeeded := common.HTTPRequest(url, common.MethodGet, nil, true, nil, nil, "", false)
+	fmt.Printf("Debug for respText: %s\n", content)
 	return content, code, succeeded
 }
 
 func postRequest(url string, data io.Reader) (string, bool) {
 	content, _, succeeded := common.HTTPRequest(url, common.MethodPost, nil, true, data, nil, "", false)
+	fmt.Printf("Debug for respText: %s\n", content)
 	return content, succeeded
 }
 
 func putRequest(url string, data io.Reader) bool {
-	_, _, succeeded := common.HTTPRequest(url, common.MethodPut, nil, false, data, nil, "", false)
+	content, _, succeeded := common.HTTPRequest(url, common.MethodPut, nil, false, data, nil, "", false)
+	fmt.Printf("Debug for respText: %s\n", content)
 	return succeeded
 }
 
 func delRequest(url string) bool {
-	_, _, succeeded := common.HTTPRequest(url, common.MethodDelete, nil, false, nil, nil, "", false)
+	content, _, succeeded := common.HTTPRequest(url, common.MethodDelete, nil, false, nil, nil, "", false)
+	fmt.Printf("Debug for respText: %s\n", content)
 	return succeeded
 }
