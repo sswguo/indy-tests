@@ -89,7 +89,7 @@ func DoRun(originalIndy, targetIndy, packageType, newBuildName string, foloTrack
 		}
 	}
 
-	updateIndyReposEnablement("http://"+targetIndyHost, packageType, newBuildName)
+	// 	updateIndyReposEnablement("http://"+targetIndyHost, packageType, newBuildName)
 	defer DeleteIndyRepos("http://"+targetIndyHost, packageType, newBuildName, uploads)
 
 	return true
