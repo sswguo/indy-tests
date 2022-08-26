@@ -22,6 +22,7 @@ const (
 	MERGED_MAVEN_METADATA_PATH = "org/apache/apache/maven-metadata.xml"
 	REMOTE_VERSION_TAG         = "<version>2</version>"
 	LATEST_HOSTED_VERSION_TAG  = "<latest>666</latest>"
+	HOSTED_POM_CONTENT         = "<project><modelVersion>4.0.0</modelVersion><groupId>org.apache</groupId><artifactId>apache</artifactId><version>666</version><packaging>pom</packaging></project>"
 )
 
 type BuildMetadata struct {
@@ -80,7 +81,7 @@ func prepareIndyHosted(indyURL, buildType, buildName string, disabled bool) {
 func prepareIndyHostedUploadContent(indyURL, buildType, buildName string) {
 	URL := fmt.Sprintf("%s/api/content/%s/hosted/%s/%s", indyURL, buildType, buildName, GOING_MERGED_HOSTED_PATH)
 	fmt.Printf("Upload going merged content to hosted repo, path: %s\n", URL)
-	result := putRequest(URL, strings.NewReader(""))
+	result := putRequest(URL, strings.NewReader(HOSTED_POM_CONTENT))
 	if !result {
 		fmt.Printf("Error: Failed to upload content to hosted repo %s.\n\n", buildName)
 		os.Exit(1)
