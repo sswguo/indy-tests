@@ -74,7 +74,7 @@ func prepareIndyHosted(indyURL, buildType, buildName string, disabled bool) {
 		fmt.Printf("Error: Failed to create/update hosted repo %s, disabled: %v.\n\n", buildName, disabled)
 		os.Exit(1)
 	}
-	fmt.Printf("Create hosted repo %s successfully, disabled: %v\n", buildName, disabled)
+	fmt.Printf("Create/Update hosted repo %s successfully, disabled: %v\n", buildName, disabled)
 }
 
 // Prepare the content to be merged
@@ -463,6 +463,11 @@ func updateIndyReposEnablement(indyURL, packageType, buildName string) {
 		os.Exit(1)
 	}
 	fmt.Printf("Get group content successfully, path: %s\n", grpContentURL)
+	pathmappedURL := fmt.Sprintf("%s/api/admin/pathmapped/content/%s/group/%s/%s", indyURL, packageType, buildName, GOING_MERGED_HOSTED_PATH)
+	_, _, result = getRequest(pathmappedURL)
+	if result {
+		fmt.Printf("Get pathmapped group content successfully, path: %s\n", pathmappedURL)
+	}
 
 	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, packageType, buildName, MERGED_MAVEN_METADATA_PATH)
 	metadata, _, result := getRequest(grpMetadataURL)
@@ -481,6 +486,11 @@ func updateIndyReposEnablement(indyURL, packageType, buildName string) {
 	prepareIndyHosted(indyURL, packageType, buildName, true)
 
 	// Verify the merged path and metadata after hosted disabled
+	_, _, result = getRequest(pathmappedURL)
+	if !result {
+		fmt.Printf("Remove pathmapped group content successfully, path: %s\n", pathmappedURL)
+	}
+
 	_, _, result = getRequest(grpContentURL)
 	if result {
 		fmt.Printf("Error: Failed to remove content from the merged group, path: %s.\n\n", grpContentURL)
