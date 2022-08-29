@@ -21,7 +21,7 @@ func Run(originalIndy, foloId, targetIndy, packageType string, processNum int) {
 	}
 	foloTrackContent := common.GetFoloRecord(origIndy, foloId)
 	newBuildName := common.GenerateRandomBuildName()
-	DoRun(originalIndy, targetIndy, packageType, newBuildName, foloTrackContent, nil, processNum, false, false)
+	DoRun(originalIndy, targetIndy, packageType, newBuildName, foloTrackContent, nil, processNum, true, false)
 }
 
 // Create the repo structure and upload folo record uploads to hosted repo
