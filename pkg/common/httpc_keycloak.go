@@ -1,6 +1,7 @@
 package common
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -84,7 +85,21 @@ func auth() (*AccessToken, error) {
 	req.SetBasicAuth(kcRes, kcSecret)
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		if strings.Contains(err.Error(), "x509") || strings.Contains(err.Error(), "certificate") {
+			fmt.Printf("Warning: ssl enabled for %s but your client does not have valid certificate. This client will bypass ssl checking.\n", kcServer)
+			// WARNING: This is not a good practice which bypass ssl checking.
+			// Better way is import valid ssl certificate in system level
+			tr := &http.Transport{
+				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			}
+			client := &http.Client{Transport: tr}
+			resp, err = client.Do(req)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		return nil, fmt.Errorf("login failed: %s", resp.Status)
