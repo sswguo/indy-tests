@@ -45,6 +45,14 @@ pipeline {
             value: /home/jenkins/gopath
           - name: GOPROXY
             value: https://proxy.golang.org
+          - name: KEYCLOAK_SERVER_URL
+            value: ${KEYCLOAK_SERVER_URL}
+          - name: KEYCLOAK_REALM
+            value: ${KEYCLOAK_REALM}
+          - name: KEYCLOAK_CLIENT_ID
+            value: ${KEYCLOAK_CLIENT_ID}
+          - name: KEYCLOAK_CLIENT_CREDENTIAL
+            value: ${KEYCLOAK_CLIENT_CREDENTIAL}
           resources:
             requests:
               memory: 4Gi
