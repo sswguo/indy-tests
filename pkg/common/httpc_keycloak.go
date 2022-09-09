@@ -78,13 +78,13 @@ func auth() (*AccessToken, error) {
 	}
 	req, err := http.NewRequest("POST", kcAuthURL, strings.NewReader(values.Encode()))
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.SetBasicAuth(kcRes, kcSecret)
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		return nil, fmt.Errorf("login failed: %s", resp.Status)
