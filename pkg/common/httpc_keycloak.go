@@ -40,6 +40,7 @@ func KeycloakAuthenticator(request *http.Request) error {
 			return err
 		}
 		if accessToken != nil {
+			fmt.Println("Access token got or refreshed, will set as beare token")
 			token = accessToken
 			wrapToken = token.Token
 		}
@@ -70,6 +71,7 @@ func auth() (*AccessToken, error) {
 		return nil, nil
 	}
 	kcAuthURL := fmt.Sprintf("%s/auth/realms/%s/protocol/openid-connect/token", kcServer, kcRealm)
+	fmt.Printf("Will do authentication to %s with id %s\n", kcAuthURL, kcRes)
 	client := &http.Client{}
 	values := url.Values{
 		"grant_type": {"client_credentials"},
@@ -90,12 +92,12 @@ func auth() (*AccessToken, error) {
 	defer resp.Body.Close()
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	var accessToken = &AccessToken{}
 	err = json.Unmarshal(content, accessToken)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return accessToken, nil
