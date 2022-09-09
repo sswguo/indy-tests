@@ -33,7 +33,7 @@ type AccessToken struct {
 
 func KeycloakAuthenticator(request *http.Request) error {
 	wrapToken := ""
-	if token != nil && !tokenExpireAt.IsZero() && time.Now().Before(tokenExpireAt) {
+	if token != nil && !tokenExpireAt.IsZero() && time.Now().Local().Before(tokenExpireAt) {
 		wrapToken = token.Token
 	} else {
 		accessToken, err := auth()
@@ -45,6 +45,7 @@ func KeycloakAuthenticator(request *http.Request) error {
 			token = accessToken
 			wrapToken = token.Token
 		}
+		tokenExpireAt = time.Now().Local().Add(time.Second * time.Duration(token.ExpiresIn))
 	}
 	var authHeaders map[string]string
 	if !IsEmptyString(wrapToken) {
