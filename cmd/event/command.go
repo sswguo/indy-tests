@@ -30,6 +30,7 @@ import (
 // example: http://orchhost/pnc-rest/v2/builds/97241/logs/build
 var targetIndy, repoReplPattern, buildType string
 var processNum int
+var doRunEnablement bool
 
 const DEFAULT_PROCESS_NUM = 1
 const DEFAULT_REPO_REPL_PATTERN = ""
@@ -53,14 +54,15 @@ func NewEventTestCmd() *cobra.Command {
 				fmt.Printf("!!targetIndy is not specified, will use the same one as the $indy_url: %s\n", indyURL)
 				targetIndy = indyURL
 			}
-			event.Run(indyURL, foloTrackId, targetIndy, buildType, processNum)
+			doRunEnablement, _ := cmd.Flags().GetBool("doRunEnablement")
+			event.Run(indyURL, foloTrackId, targetIndy, buildType, processNum, doRunEnablement)
 		},
 	}
 
 	exec.Flags().StringVarP(&targetIndy, "targetIndy", "t", "", "The target indy server to do the testing. Will get from this flag or from env variables 'INDY_TARGET' if flag is not specified. If both are not specified, will use $indy_url.")
 	exec.Flags().StringVarP(&buildType, "buildType", "b", DEFAULT_BUILD_TYPE, "The type of the build, should be 'maven' or 'npm'. Default is 'maven'.")
 	exec.Flags().IntVarP(&processNum, "processNum", "p", DEFAULT_PROCESS_NUM, "The number of processes to download and upload files in parralel.")
-
+	exec.Flags().BoolP("doRunEnablement", "e", true, "Decide whether to run enablement validation or not.")
 	return exec
 }
 
