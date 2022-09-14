@@ -14,20 +14,20 @@ const (
 	TMP_UPLOAD_DIR = "/tmp/upload"
 )
 
-func Run(originalIndy, foloId, targetIndy, packageType string, processNum int) {
+func Run(originalIndy, foloId, targetIndy, packageType string, processNum int, doRunEnablement bool) {
 	origIndy := originalIndy
 	if !strings.HasPrefix(origIndy, "http://") {
 		origIndy = "http://" + origIndy
 	}
 	foloTrackContent := common.GetFoloRecord(origIndy, foloId)
 	newBuildName := common.GenerateRandomBuildName()
-	DoRun(originalIndy, targetIndy, packageType, newBuildName, foloTrackContent, nil, processNum, true, false)
+	DoRun(originalIndy, targetIndy, packageType, newBuildName, foloTrackContent, nil, processNum, true, false, doRunEnablement)
 }
 
 // Create the repo structure and upload folo record uploads to hosted repo
 func DoRun(originalIndy, targetIndy, packageType, newBuildName string, foloTrackContent common.TrackedContent,
 	additionalRepos []string,
-	processNum int, clearCache, dryRun bool) bool {
+	processNum int, clearCache, dryRun, doRunEnablement bool) bool {
 
 	common.ValidateTargetIndyOrExit(originalIndy)
 	targetIndyHost, _ := common.ValidateTargetIndyOrExit(targetIndy)
@@ -89,7 +89,9 @@ func DoRun(originalIndy, targetIndy, packageType, newBuildName string, foloTrack
 		}
 	}
 
-	// 	updateIndyReposEnablement("http://"+targetIndyHost, packageType, newBuildName)
+	if doRunEnablement {
+		updateIndyReposEnablement("http://"+targetIndyHost, packageType, newBuildName)
+	}
 	defer DeleteIndyRepos("http://"+targetIndyHost, packageType, newBuildName, uploads)
 
 	return true
