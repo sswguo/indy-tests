@@ -557,19 +557,19 @@ func getRequest(url string) (string, int, bool) {
 }
 
 func postRequest(url string, data io.Reader) (string, bool) {
-	content, _, succeeded := common.HTTPRequest(url, common.MethodPost, nil, true, data, nil, "", false)
+	content, _, succeeded := common.HTTPRequest(url, common.MethodPost, common.KeycloakAuthenticator, true, data, nil, "", false)
 	debugFailureRequest(succeeded, content)
 	return content, succeeded
 }
 
 func putRequest(url string, data io.Reader) bool {
-	content, _, succeeded := common.HTTPRequest(url, common.MethodPut, nil, false, data, nil, "", false)
+	content, _, succeeded := common.HTTPRequest(url, common.MethodPut, common.KeycloakAuthenticator, false, data, nil, "", false)
 	debugFailureRequest(succeeded, content)
 	return succeeded
 }
 
 func delRequest(url string) bool {
-	content, _, succeeded := common.HTTPRequest(url, common.MethodDelete, nil, false, nil, nil, "", false)
+	content, _, succeeded := common.HTTPRequest(url, common.MethodDelete, common.KeycloakAuthenticator, false, nil, nil, "", false)
 	debugFailureRequest(succeeded, content)
 	return succeeded
 }
