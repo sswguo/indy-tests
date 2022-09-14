@@ -55,9 +55,9 @@ func prepareIndyRepos(indyURL, buildName string, buildMeta BuildMetadata, additi
 		return
 	}
 	prepareIndyHosted(indyURL, buildMeta.buildType, buildName, false)
+	prepareIndyHostedUploadContent(indyURL, buildMeta.buildType, buildName)
 	prepareIndyRemote(indyURL, buildMeta.buildType, buildName)
 	prepareIndyGroup(indyURL, buildName, buildMeta, additionalRepos)
-	prepareIndyHostedUploadContent(indyURL, buildMeta.buildType, buildName)
 }
 
 func prepareIndyHosted(indyURL, buildType, buildName string, disabled bool) {
