@@ -129,11 +129,10 @@ func prepareIndyGroup(indyURL, buildName string, buildMeta BuildMetadata, additi
 	fmt.Printf("==========================================\n\n")
 
 	var constituents []string
-	buildType, sharedGrpName := buildMeta.buildType, buildMeta.sharedGrpName
+	buildType := buildMeta.buildType
 	hostedChild := fmt.Sprintf("%s:hosted:%s", buildType, buildName)
 	remoteChild := fmt.Sprintf("%s:remote:%s", buildType, buildName)
-	sharedGrpChild := fmt.Sprintf("%s:group:%s", buildType, sharedGrpName)
-	constituents = append(constituents, hostedChild, sharedGrpChild)
+	constituents = append(constituents, hostedChild)
 
 	URL := fmt.Sprintf("%s/api/admin/stores/%s/group/%s", indyURL, buildType, buildName)
 
