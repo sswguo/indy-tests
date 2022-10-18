@@ -377,11 +377,17 @@ func verifyHostedAffectedGroupCleanup(indyURL, buildType, repoName string, uploa
 	// Verify constituent is removed from the affected group
 	verifyGroupConstituents(indyURL, buildType, "hosted", repoName)
 
-	// Verify the merged paths and metadata are removed from the affected group
+	// Verify the merged paths are removed from the affected group
 	for _, upload := range uploads {
 		childStorePath := fmt.Sprintf("%s/%s/%s", buildType, "hosted", repoName)
 		targetPath := strings.Split(upload[2], childStorePath)[1]
 		grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s%s", indyURL, buildType, repoName, targetPath)
+		isMeta := strings.HasSuffix(grpContentURL, ".md5") || strings.HasSuffix(grpContentURL, ".sha") ||
+			strings.HasSuffix(grpContentURL, ".sha1") || strings.HasSuffix(grpContentURL, ".sha256") ||
+			strings.HasSuffix(grpContentURL, ".info")
+		if isMeta {
+			continue
+		}
 		_, _, result := getRequest(grpContentURL)
 		if result {
 			fmt.Printf("Error: Content %s is still existed in group %s.\n\n", grpContentURL, repoName)
