@@ -55,7 +55,7 @@ func NewEventTestCmd() *cobra.Command {
 				targetIndy = indyURL
 			}
 			doRunEnablement, _ := cmd.Flags().GetBool("doRunEnablement")
-			fmt.Printf("doRunEnablement: %t", doRunEnablement)
+			fmt.Printf("doRunEnablement: %t\n", doRunEnablement)
 			event.Run(indyURL, foloTrackId, targetIndy, buildType, processNum, doRunEnablement)
 		},
 	}

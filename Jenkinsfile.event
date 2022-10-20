@@ -104,10 +104,10 @@ pipeline {
           sh 'chmod +x ./build/indy-test'
           if (env.INDY_TARGET != null && env.INDY_TARGET.trim() != '') {
             echo "INDY_TARGET is specified as $INDY_TARGET!"
-            sh "./build/indy-test event ${ORIGINAL_INDY} ${FOLO_ID} -t ${INDY_TARGET} -b ${BUILD_TYPE} -p ${PROCESS_NUM} -e ${DO_RUN_ENABLEMENT}"
+            sh "./build/indy-test event ${ORIGINAL_INDY} ${FOLO_ID} -t ${INDY_TARGET} -b ${BUILD_TYPE} -p ${PROCESS_NUM} --doRunEnablement=${DO_RUN_ENABLEMENT}"
           } else {
             echo "INDY_TARGET is not specified!"
-            sh "./build/indy-test event ${ORIGINAL_INDY} ${FOLO_ID} -b ${BUILD_TYPE} -p ${PROCESS_NUM} -e ${DO_RUN_ENABLEMENT}"
+            sh "./build/indy-test event ${ORIGINAL_INDY} ${FOLO_ID} -b ${BUILD_TYPE} -p ${PROCESS_NUM} --doRunEnablement=${DO_RUN_ENABLEMENT}"
           }
         }
       }
