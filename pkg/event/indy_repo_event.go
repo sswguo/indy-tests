@@ -109,8 +109,8 @@ func prepareIndyRemote(indyURL, buildType, buildName string) {
 	}
 	fmt.Printf("Create remote repo %s successfully\n", buildName)
 
-	fmt.Printf("Waiting 30s...\n")
-	time.Sleep(30 * time.Second)
+	fmt.Printf("Waiting 60s...\n")
+	time.Sleep(60 * time.Second)
 
 	// Verify the remote content path after repo creation
 	remoteContentURL := fmt.Sprintf("%s/api/content/%s/remote/%s/%s", indyURL, buildType, buildName, ACCESSIBLE_REMOTE_PATH)
@@ -152,8 +152,8 @@ func prepareIndyGroup(indyURL, buildName string, buildMeta BuildMetadata, additi
 	}
 	fmt.Printf("Update group repo %s successfully\n", buildName)
 
-	fmt.Printf("Waiting 30s...\n")
-	time.Sleep(30 * time.Second)
+	fmt.Printf("Waiting 60s...\n")
+	time.Sleep(60 * time.Second)
 
 	// Verify the merged path and metadata after remote constituent update
 	grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, buildName, ACCESSIBLE_REMOTE_PATH)
@@ -229,6 +229,8 @@ func deleteIndyHosted(indyURL, buildType, repoName string, uploads map[string][]
 		os.Exit(1)
 	}
 
+	fmt.Printf("Waiting 60s...\n")
+	time.Sleep(60 * time.Second)
 	// Verify the contents, merged paths and metadata before deleting hosted repo
 	for _, upload := range uploads {
 		targetPath := strings.Split(upload[2], storePath)[1]
@@ -279,8 +281,8 @@ func deleteIndyHosted(indyURL, buildType, repoName string, uploads map[string][]
 		os.Exit(1)
 	}
 
-	fmt.Printf("Waiting 30s...\n")
-	time.Sleep(30 * time.Second)
+	fmt.Printf("Waiting 60s...\n")
+	time.Sleep(60 * time.Second)
 
 	// Verify the contents after deleting
 	for _, upload := range uploads {
@@ -302,8 +304,8 @@ func deleteIndyHosted(indyURL, buildType, repoName string, uploads map[string][]
 		fmt.Printf("Delete hosted repo %s successfully\n", repoName)
 	}
 
-	fmt.Printf("Waiting 30s...\n")
-	time.Sleep(30 * time.Second)
+	fmt.Printf("Waiting 60s...\n")
+	time.Sleep(60 * time.Second)
 
 	// Verify affected group cleanup
 	verifyHostedAffectedGroupCleanup(indyURL, buildType, repoName, uploads)
@@ -344,8 +346,8 @@ func deleteIndyRemote(indyURL, buildType, repoName string) {
 		fmt.Printf("Delete remote repo %s successfully\n", repoName)
 	}
 
-	fmt.Printf("Waiting 30s...\n")
-	time.Sleep(30 * time.Second)
+	fmt.Printf("Waiting 60s...\n")
+	time.Sleep(60 * time.Second)
 
 	// Verify NFC cleanup
 	if nfcVerified {
@@ -501,8 +503,8 @@ func updateIndyReposEnablement(indyURL, packageType, buildName string) {
 	// Disable the hosted repo
 	prepareIndyHosted(indyURL, packageType, buildName, true)
 
-	fmt.Printf("Waiting 30s...\n")
-	time.Sleep(30 * time.Second)
+	fmt.Printf("Waiting 60s...\n")
+	time.Sleep(60 * time.Second)
 
 	// 	_, _, result = getRequest(grpContentURL)
 	// 	if result {
@@ -522,8 +524,8 @@ func updateIndyReposEnablement(indyURL, packageType, buildName string) {
 	// Enable the hosted repo
 	prepareIndyHosted(indyURL, packageType, buildName, false)
 
-	fmt.Printf("Waiting 30s...\n")
-	time.Sleep(30 * time.Second)
+	fmt.Printf("Waiting 60s...\n")
+	time.Sleep(60 * time.Second)
 
 	// Verify the merged path and metadata after hosted enabled
 	_, _, result := getRequest(grpContentURL)
