@@ -384,13 +384,13 @@ func verifyHostedAffectedGroupCleanup(indyURL, buildType, repoName string, uploa
 		childStorePath := fmt.Sprintf("%s/%s/%s", buildType, "hosted", repoName)
 		targetPath := strings.Split(upload[2], childStorePath)[1]
 		grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s%s", indyURL, buildType, repoName, targetPath)
-		isMeta := strings.HasSuffix(grpContentURL, ".md5") || strings.HasSuffix(grpContentURL, ".sha") ||
-			strings.HasSuffix(grpContentURL, ".sha1") || strings.HasSuffix(grpContentURL, ".sha256") ||
-			strings.HasSuffix(grpContentURL, ".info")
-		if isMeta {
-			fmt.Printf("isMeta %t, grpContentURL %s\n", isMeta, grpContentURL)
-			continue
-		}
+		// 		isMeta := strings.HasSuffix(grpContentURL, ".md5") || strings.HasSuffix(grpContentURL, ".sha") ||
+		// 			strings.HasSuffix(grpContentURL, ".sha1") || strings.HasSuffix(grpContentURL, ".sha256") ||
+		// 			strings.HasSuffix(grpContentURL, ".info")
+		// 		if isMeta {
+		// 			fmt.Printf("isMeta %t, grpContentURL %s\n", isMeta, grpContentURL)
+		// 			continue
+		// 		}
 		_, _, result := getRequest(grpContentURL)
 		if result {
 			fmt.Printf("Error: Content %s is still existed in group %s.\n\n", grpContentURL, repoName)
@@ -463,13 +463,14 @@ func verifyGroupConstituents(indyURL, buildType, storeType, repoName string) {
 func isNFCCached(indyURL, buildType, storeType, repoName string) bool {
 	nfcURL := fmt.Sprintf("%s/api/nfc/%s/%s/%s", indyURL, buildType, storeType, repoName)
 	nfcContent, _, result := getRequest(nfcURL)
+	fmt.Printf("NFC URL: %s\n", nfcURL)
 	if !result {
-		fmt.Printf("Failed to get NFC for store key %s:%s:%s.\n", buildType, storeType, repoName)
+		fmt.Printf("Don't get NFC for store key %s:%s:%s\n", buildType, storeType, repoName)
 		return false
 	}
 	index := strings.Index(nfcContent, MISSING_CONTENT_PATH)
 	if index < 0 {
-		fmt.Printf("Failed to find missing content in store %s:%s:%s NFC caches.\n", buildType, storeType, repoName)
+		fmt.Printf("Don't find missing content in store %s:%s:%s NFC caches\n", buildType, storeType, repoName)
 		return false
 	}
 	return true
