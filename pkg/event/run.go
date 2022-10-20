@@ -21,6 +21,7 @@ func Run(originalIndy, foloId, targetIndy, packageType string, processNum int, d
 	}
 	foloTrackContent := common.GetFoloRecord(origIndy, foloId)
 	newBuildName := common.GenerateRandomBuildName()
+	fmt.Printf("Event run doRunEnablement: %t", doRunEnablement)
 	DoRun(originalIndy, targetIndy, packageType, newBuildName, foloTrackContent, nil, processNum, true, false, doRunEnablement)
 }
 
