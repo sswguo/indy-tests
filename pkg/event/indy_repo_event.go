@@ -384,13 +384,11 @@ func verifyHostedAffectedGroupCleanup(indyURL, buildType, repoName string, uploa
 		childStorePath := fmt.Sprintf("%s/%s/%s", buildType, "hosted", repoName)
 		targetPath := strings.Split(upload[2], childStorePath)[1]
 		grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s%s", indyURL, buildType, repoName, targetPath)
-		// 		isMeta := strings.HasSuffix(grpContentURL, ".md5") || strings.HasSuffix(grpContentURL, ".sha") ||
-		// 			strings.HasSuffix(grpContentURL, ".sha1") || strings.HasSuffix(grpContentURL, ".sha256") ||
-		// 			strings.HasSuffix(grpContentURL, ".info")
-		// 		if isMeta {
-		// 			fmt.Printf("isMeta %t, grpContentURL %s\n", isMeta, grpContentURL)
-		// 			continue
-		// 		}
+		// This needs to validate group generated metadata timeout
+		if strings.HasSuffix(grpContentURL, "maven-metadata.xml") {
+			fmt.Printf("GeneratedMeta, grpContentURL %s\n", grpContentURL)
+			continue
+		}
 		_, _, result := getRequest(grpContentURL)
 		if result {
 			fmt.Printf("Error: Content %s is still existed in group %s.\n\n", grpContentURL, repoName)
@@ -427,14 +425,15 @@ func verifyRemoteAffectedGroupCleanup(indyURL, buildType, repoName string) {
 	}
 	fmt.Printf("Remove remote content from the affected group successfully\n")
 
+	// This needs to validate group generated metadata timeout
 	// maven-metadata.xml will be removed entirely after hosted and remote are both deleted
-	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
-	_, _, mergedResult := getRequest(grpMetadataURL)
-	if mergedResult {
-		fmt.Printf("Error: Failed to remove metadata file entirely from group, path: %s.\n\n", grpMetadataURL)
-		os.Exit(1)
-	}
-	fmt.Printf("Remove metadata file entirely from group successfully, path: %s\n", grpMetadataURL)
+	// 	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
+	// 	_, _, mergedResult := getRequest(grpMetadataURL)
+	// 	if mergedResult {
+	// 		fmt.Printf("Error: Failed to remove metadata file entirely from group, path: %s.\n\n", grpMetadataURL)
+	// 		os.Exit(1)
+	// 	}
+	// 	fmt.Printf("Remove metadata file entirely from group successfully, path: %s\n", grpMetadataURL)
 }
 
 func verifyGroupConstituents(indyURL, buildType, storeType, repoName string) {
