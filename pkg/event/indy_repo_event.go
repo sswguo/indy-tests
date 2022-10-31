@@ -327,9 +327,9 @@ func deleteIndyRemote(indyURL, buildType, repoName string) {
 	// Verify NFC creation
 	remoteMissingURL := fmt.Sprintf("%s/api/content/%s/remote/%s/%s", indyURL, buildType, repoName, MISSING_CONTENT_PATH)
 	_, missingCode, _ := getRequest(remoteMissingURL)
-	nfcVerified := false
+	// 	nfcVerified := false
 	if missingCode == 404 {
-		nfcVerified = true
+		// 		nfcVerified = true
 		isCached := isNFCCached(indyURL, buildType, "remote", repoName)
 		if !isCached {
 			fmt.Printf("Error: Failed to cache NFC for remote repo %s.\n\n", repoName)
@@ -350,14 +350,14 @@ func deleteIndyRemote(indyURL, buildType, repoName string) {
 	time.Sleep(60 * time.Second)
 
 	// Verify NFC cleanup
-	if nfcVerified {
-		isCached := isNFCCached(indyURL, buildType, "remote", repoName)
-		if isCached {
-			fmt.Printf("Error: Failed to remove NFC cache for remote repo %s.\n\n", repoName)
-			os.Exit(1)
-		}
-		fmt.Printf("Remove NFC for remote repo %s successfully\n", repoName)
-	}
+	// 	if nfcVerified {
+	// 		isCached := isNFCCached(indyURL, buildType, "remote", repoName)
+	// 		if isCached {
+	// 			fmt.Printf("Error: Failed to remove NFC cache for remote repo %s.\n\n", repoName)
+	// 			os.Exit(1)
+	// 		}
+	// 		fmt.Printf("Remove NFC for remote repo %s successfully\n", repoName)
+	// 	}
 
 	// Verify affected group cleanup
 	verifyRemoteAffectedGroupCleanup(indyURL, buildType, repoName)
@@ -384,11 +384,6 @@ func verifyHostedAffectedGroupCleanup(indyURL, buildType, repoName string, uploa
 		childStorePath := fmt.Sprintf("%s/%s/%s", buildType, "hosted", repoName)
 		targetPath := strings.Split(upload[2], childStorePath)[1]
 		grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s%s", indyURL, buildType, repoName, targetPath)
-		// This needs to validate group generated metadata timeout
-		if strings.HasSuffix(grpContentURL, "maven-metadata.xml") {
-			fmt.Printf("GeneratedMeta, grpContentURL %s\n", grpContentURL)
-			continue
-		}
 		_, _, result := getRequest(grpContentURL)
 		if result {
 			fmt.Printf("Error: Content %s is still existed in group %s.\n\n", grpContentURL, repoName)
@@ -425,15 +420,14 @@ func verifyRemoteAffectedGroupCleanup(indyURL, buildType, repoName string) {
 	}
 	fmt.Printf("Remove remote content from the affected group successfully\n")
 
-	// This needs to validate group generated metadata timeout
-	// maven-metadata.xml will be removed entirely after hosted and remote are both deleted
-	// 	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
-	// 	_, _, mergedResult := getRequest(grpMetadataURL)
-	// 	if mergedResult {
-	// 		fmt.Printf("Error: Failed to remove metadata file entirely from group, path: %s.\n\n", grpMetadataURL)
-	// 		os.Exit(1)
-	// 	}
-	// 	fmt.Printf("Remove metadata file entirely from group successfully, path: %s\n", grpMetadataURL)
+	// group maven-metadata.xml will be removed (with timeout) entirely after hosted and remote are both removed
+	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
+	_, _, mergedResult := getRequest(grpMetadataURL)
+	if mergedResult {
+		fmt.Printf("Error: Failed to remove metadata file entirely from group, path: %s.\n\n", grpMetadataURL)
+		os.Exit(1)
+	}
+	fmt.Printf("Remove metadata file entirely from group successfully, path: %s\n", grpMetadataURL)
 }
 
 func verifyGroupConstituents(indyURL, buildType, storeType, repoName string) {
