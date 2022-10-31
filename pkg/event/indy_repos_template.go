@@ -26,7 +26,8 @@ func IndyGroupTemplate(indyGroupVars *IndyGroupVars) string {
   "type" : "group",
   "key" : "{{.Type}}:group:{{.Name}}",
   "metadata" : {
-    "changelog" : "init group {{.Name}}"
+    "changelog" : "init group {{.Name}}",
+    "metadata-timeout" : 30
   },
   "disabled" : false,
   "constituents" : [{{range $index,$con := .Constituents}}"{{$con}}"{{if isNotLast $index $.Constituents}},{{end}}{{end}}],
