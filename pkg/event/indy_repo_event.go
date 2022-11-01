@@ -419,15 +419,6 @@ func verifyRemoteAffectedGroupCleanup(indyURL, buildType, repoName string) {
 		os.Exit(1)
 	}
 	fmt.Printf("Remove remote content from the affected group successfully\n")
-
-	// group maven-metadata.xml will be removed (with timeout) entirely after hosted and remote are both removed
-	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, buildType, repoName, MERGED_MAVEN_METADATA_PATH)
-	_, _, mergedResult := getRequest(grpMetadataURL)
-	if mergedResult {
-		fmt.Printf("Error: Failed to remove metadata file entirely from group, path: %s.\n\n", grpMetadataURL)
-		os.Exit(1)
-	}
-	fmt.Printf("Remove metadata file entirely from group successfully, path: %s\n", grpMetadataURL)
 }
 
 func verifyGroupConstituents(indyURL, buildType, storeType, repoName string) {
@@ -473,40 +464,14 @@ func updateIndyReposEnablement(indyURL, packageType, buildName string) {
 	fmt.Println("Start repo enablement/disablement cleanup.")
 	fmt.Printf("==========================================\n\n")
 
-	// 	// Verify the merged path and metadata
 	grpContentURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, packageType, buildName, GOING_MERGED_HOSTED_PATH)
-	// 	_, _, result := getRequest(grpContentURL)
-	// 	if !result {
-	// 		fmt.Printf("Error: Failed to get group content, path: %s.\n\n", grpContentURL)
-	// 		os.Exit(1)
-	// 	}
-	// 	fmt.Printf("Get group content successfully, path: %s\n", grpContentURL)
-	//
 	grpMetadataURL := fmt.Sprintf("%s/api/content/%s/group/%s/%s", indyURL, packageType, buildName, MERGED_MAVEN_METADATA_PATH)
-	// 	metadata, _, result := getRequest(grpMetadataURL)
-	// 	if !result {
-	// 		fmt.Printf("Error: Failed to get group metadata, path: %s.\n\n", grpMetadataURL)
-	// 		os.Exit(1)
-	// 	}
-	// 	index := strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
-	// 	if index < 0 {
-	// 		fmt.Printf("Error: Failed to get correct merged metadata content, path: %s.\n\n", grpMetadataURL)
-	// 		os.Exit(1)
-	// 	}
-	// 	fmt.Printf("Get correct merged metadata content successfully, path: %s\n", grpMetadataURL)
 
 	// Disable the hosted repo
 	prepareIndyHosted(indyURL, packageType, buildName, true)
 
 	fmt.Printf("Waiting 60s...\n")
 	time.Sleep(60 * time.Second)
-
-	// 	_, _, result = getRequest(grpContentURL)
-	// 	if result {
-	// 		fmt.Printf("Error: Failed to remove content from the merged group, path: %s.\n\n", grpContentURL)
-	// 		os.Exit(1)
-	// 	}
-	// 	fmt.Printf("Remove content from the merged group successfully, path: %s\n", grpContentURL)
 
 	metadata, _, _ := getRequest(grpMetadataURL)
 	index := strings.Index(metadata, LATEST_HOSTED_VERSION_TAG)
